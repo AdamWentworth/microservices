@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Event Stats API
+  version: 1.0.0
+  description: This API provides statistics generated from event data processed by the service.
+  contact:
+    email: adamjohnwentworth@gmail.com
+paths:
+  /stats:
+    get:
+      summary: Gets the event stats
+      operationId: app.get_stats
+      description: Retrieves statistics processed from event data.
+      responses:
+        '200':
+          description: Successfully returned a list of event statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  num_event1_type:
+                    type: integer
+                    example: 100
+                  num_event2_type:
+                    type: integer
+                    example: 150
+                  statistic3:
+                    type: integer
+                    description: Description of statistic3
+                    example: 200
+                  statistic4:
+                    type: integer
+                    description: Description of statistic4
+                    example: 250
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string

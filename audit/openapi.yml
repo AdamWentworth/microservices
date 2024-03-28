@@ -1,0 +1,203 @@
+openapi: 3.0.0
+info:
+  title: Audit API
+  version: 1.0.0
+  description: This API provides audit information for different types of events.
+  contact:
+    email: adamjohnwentworth@gmail.com
+paths:
+  /artist:
+    get:
+      summary: Retrieve an artist addition event by index
+      operationId: app.get_artist_event
+      tags:
+        - Artist Event
+      parameters:
+        - name: index
+          in: query
+          description: Index of the artist addition event in the event store
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully returned an artist addition event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtistEvent'
+        '404':
+          description: Not Found
+  /social-media:
+    get:
+      summary: Retrieve a social media update event by index
+      operationId: app.get_social_media_event
+      tags:
+        - Social Media Event
+      parameters:
+        - name: index
+          in: query
+          description: Index of the social media update event in the event store
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully returned a social media update event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialMediaEvent'
+        '404':
+          description: Not Found
+  /radio-play:
+    get:
+      summary: Retrieve a radio play update event by index
+      operationId: app.get_radio_play_event
+      tags:
+        - Radio Play Event
+      parameters:
+        - name: index
+          in: query
+          description: Index of the radio play update event in the event store
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully returned a radio play update event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RadioPlayEvent'
+        '404':
+          description: Not Found
+  /track-artist:
+    get:
+      summary: Retrieve a track artist event by index
+      operationId: app.get_track_artist_event
+      tags:
+        - Track Artist Event
+      parameters:
+        - name: index
+          in: query
+          description: Index of the track artist event in the event store
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully returned a track artist event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackedArtistEvent'
+        '404':
+          description: Not Found
+components:
+  schemas:
+    ArtistEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        name:
+          type: string
+          example: 'John Doe'
+        genre:
+          type: string
+          example: 'Pop'
+        region:
+          type: string
+          example: 'North America'
+        top_tracks:
+          type: array
+          items:
+            type: string
+          example: ['Track A', 'Track B']
+        certifications:
+          type: array
+          items:
+            type: string
+          example: ['Platinum', 'Gold']
+        trace_id:
+          type: string
+          example: 'trace-id-example'
+        date_created:
+          type: string
+          format: date-time
+          example: '2023-03-14T15:09:26.0Z'
+
+    SocialMediaEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        artist_id:
+          type: string
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        platform:
+          type: string
+          example: 'Spotify'
+        followers:
+          type: integer
+          example: 100000
+        plays:
+          type: integer
+          example: 50000
+        trace_id:
+          type: string
+          example: 'trace-id-example-social'
+        date_created:
+          type: string
+          format: date-time
+          example: '2023-03-15T11:30:00.0Z'
+
+    RadioPlayEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        artist_id:
+          type: string
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        region:
+          type: string
+          example: 'Europe'
+        song_title:
+          type: string
+          example: "Hit Song"
+        spins:
+          type: integer
+          example: 200
+        trace_id:
+          type: string
+          example: 'trace-id-example-radio'
+        date_created:
+          type: string
+          format: date-time
+          example: '2023-03-16T09:20:00.0Z'
+
+    TrackedArtistEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        user_id:
+          type: string
+          example: '98e6754c-e90b-12d3-a456-426655440000'
+        artist_id:
+          type: string
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        trace_id:
+          type: string
+          example: 'trace-id-example-track'
+        date_created:
+          type: string
+          format: date-time
+          example: '2023-03-17T14:45:00.0Z'
+

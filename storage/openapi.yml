@@ -1,0 +1,327 @@
+openapi: 3.0.0
+info:
+  title: Artist Tracker API
+  version: 1.0.0
+  description: A comprehensive tool for music industry professionals, facilitating research and cataloging of artists. Provides detailed profiles, social media and streaming metrics, and radio play data.
+  contact:
+    email: adamjohnwentworth@gmail.com
+tags:
+  - name: Artist Information
+    description: Operations related to artist data
+  - name: Social Media Tracking
+    description: Operations for tracking social media and streaming statistics
+  - name: Radio Play Tracking
+    description: Operations for tracking radio plays per song and region
+  - name: User Management
+    description: Operations related to user profiles and artist tracking
+paths:
+  /artist:
+    post:
+      tags:
+        - Artist Information
+      summary: Add a new artist profile
+      description: Add a new artist's profile to the database.
+      operationId: app.addArtist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Artist'
+      responses:
+        '201':
+          description: Artist profile created
+        '400':
+          description: Invalid input
+  /artist/social-media-update:
+    post:
+      tags:
+        - Social Media Tracking
+      summary: Update artist's social media metrics
+      description: Update social media and streaming platform statistics for an artist.
+      operationId: app.updateSocialMedia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialMediaMetrics'
+      responses:
+        '200':
+          description: Social media metrics updated
+        '404':
+          description: Artist not found
+  /artist/radio-play-update:
+    post:
+      tags:
+        - Radio Play Tracking
+      summary: Update artist's radio play data
+      description: Update radio play statistics for an artist's songs, categorized by region.
+      operationId: app.updateRadioPlay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadioPlayMetrics'
+      responses:
+        '200':
+          description: Radio play data updated
+        '404':
+          description: Artist or song not found
+  /user/track-artist:
+    post:
+      tags:
+        - User Management
+      summary: Track a specific artist
+      description: Add an artist to a user's cataloged list of tracked artists.
+      operationId: app.trackArtist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackedArtist'
+      responses:
+        '200':
+          description: Artist tracking initiated
+        '400':
+          description: Invalid input or artist not found
+  /artist/timestamp:
+    get:
+      tags:
+        - Artist Information
+      summary: Retrieves artist profiles within a specific time range
+      operationId: app.get_artists_by_timestamp
+      parameters:
+        - name: start_timestamp
+          in: query
+          description: The start of the time range for retrieving artist profiles
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end_timestamp
+          in: query
+          description: The end of the time range for retrieving artist profiles
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successfully returned a list of artist profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Artist'
+        '400':
+          description: Invalid request
+  /social_media/max_followers_by_timestamp:
+    get:
+      tags:
+        - Social Media Tracking
+      summary: Retrieves the maximum followers by timestamp
+      operationId: app.get_max_followers_by_timestamp
+      parameters:
+        - name: start_timestamp
+          in: query
+          description: The start of the time range for retrieving max followers
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end_timestamp
+          in: query
+          description: The end of the time range for retrieving max followers
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successfully returned the max followers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  max_followers:
+                    type: integer
+                    example: 100000
+        '400':
+          description: Invalid request
+  /artist/radio-play/timestamp:
+    get:
+      tags:
+        - Radio Play Tracking
+      summary: Retrieves the maximum radio play count within a specific time range
+      operationId: app.get_radio_play_by_timestamp
+      parameters:
+        - name: start_timestamp
+          in: query
+          description: The start of the time range for retrieving radio play metrics
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end_timestamp
+          in: query
+          description: The end of the time range for retrieving radio play metrics
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successfully returned the maximum radio play count within the specified time range
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  max_radio_play:
+                    type: integer
+                    description: The maximum number of radio plays within the given time range
+        '400':
+          description: Invalid request
+  /user/track-artist/timestamp:
+    get:
+      tags:
+        - User Management
+      summary: Retrieves tracked artists within a specific time range
+      operationId: app.get_tracked_artists_by_timestamp
+      parameters:
+        - name: start_timestamp
+          in: query
+          description: The start of the time range for retrieving tracked artists
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end_timestamp
+          in: query
+          description: The end of the time range for retrieving tracked artists
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successfully returned a list of tracked artists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrackedArtist'
+        '400':
+          description: Invalid request
+components:
+  schemas:
+    Artist:
+      type: object
+      required:
+        - id
+        - name
+        - genre
+        - region
+        - trace_id
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        name:
+          type: string
+          example: John Doe
+        genre:
+          type: string
+          example: Pop
+        region:
+          type: string
+          example: North America
+        top_tracks:
+          type: array
+          items:
+            type: string
+          example: ['Track A', 'Track B']
+        certifications:
+          type: array
+          items:
+            type: string
+          example: ['Platinum', 'Gold']
+        trace_id: 
+          type: string
+          description: Unique identifier for tracing requests across services
+    SocialMediaMetrics:
+      type: object
+      required:
+        - artist_id
+        - platform
+        - followers
+        - plays
+        - trace_id
+      properties:
+        artist_id:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        platform:
+          type: string
+          example: Spotify
+        followers:
+          type: integer
+          example: 1000000
+        plays:
+          type: integer
+          example: 500000
+        trace_id:
+          type: string
+          description: Unique identifier for tracing requests across services
+    RadioPlayMetrics:
+      type: object
+      required:
+        - artist_id
+        - region
+        - song_title
+        - spins
+        - trace_id
+      properties:
+        artist_id:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        region:
+          type: string
+          example: Europe
+        song_title:
+          type: string
+          example: "Hit Song"
+        spins:
+          type: integer
+          example: 200
+        trace_id:
+          type: string
+          description: Unique identifier for tracing requests across services
+    TrackedArtist:
+      type: object
+      required:
+        - user_id
+        - artist_id
+        - trace_id
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: '98e6754c-e90b-12d3-a456-426655440000'
+        artist_id:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        trace_id:
+          type: string
+          description: Unique identifier for tracing requests across services
+

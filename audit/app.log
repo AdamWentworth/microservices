@@ -1,0 +1,65 @@
+2024-03-21 14:04:41,985 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8110
+2024-03-21 14:04:41,985 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-03-21 15:45:51,890 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8110
+2024-03-21 15:45:51,891 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-03-21 16:01:48,764 - app - ERROR - Exception on /artist [GET]
+Traceback (most recent call last):
+  File "C:\Users\adam\.pyenv\pyenv-win\versions\3.12.1\Lib\site-packages\flask\app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\adam\.pyenv\pyenv-win\versions\3.12.1\Lib\site-packages\flask\app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\adam\.pyenv\pyenv-win\versions\3.12.1\Lib\site-packages\flask\app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\adam\.pyenv\pyenv-win\versions\3.12.1\Lib\site-packages\flask\app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Visual-Studio-Code\ACIT3855\audit\app.py", line 45, in get_artist_event
+    return get_event_reading(index, 'artist')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Visual-Studio-Code\ACIT3855\audit\app.py", line 21, in get_event_reading
+    hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+                  ~~~~~~~~~~^^^^^^^^^^
+KeyError: 'events'
+2024-03-21 16:01:48,782 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:01:48] "[35m[1mGET /artist?index=0 HTTP/1.1[0m" 500 -
+2024-03-21 16:04:40,020 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8110
+2024-03-21 16:04:40,021 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-03-21 16:04:43,575 - basicLogger - INFO - Retrieving artist at index 0
+2024-03-21 16:04:44,971 - basicLogger - ERROR - artist not found at index 0
+2024-03-21 16:04:44,974 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:04:44] "[33mGET /artist?index=0 HTTP/1.1[0m" 404 -
+2024-03-21 16:11:51,726 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8110
+2024-03-21 16:11:51,727 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-03-21 16:11:55,255 - basicLogger - INFO - Retrieving addArtist at index 0
+2024-03-21 16:11:55,608 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:11:55] "GET /artist?index=0 HTTP/1.1" 200 -
+2024-03-21 16:13:13,186 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:13:13] "[33mGET /social_media?index=0 HTTP/1.1[0m" 404 -
+2024-03-21 16:13:27,795 - basicLogger - INFO - Retrieving updateSocialMedia at index 0
+2024-03-21 16:13:28,144 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:13:28] "GET /social-media?index=0 HTTP/1.1" 200 -
+2024-03-21 16:13:37,409 - basicLogger - INFO - Retrieving updateRadioPlay at index 0
+2024-03-21 16:13:37,766 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:13:37] "GET /radio-play?index=0 HTTP/1.1" 200 -
+2024-03-21 16:13:48,272 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:13:48] "[33mGET /tracked-artist?index=0 HTTP/1.1[0m" 404 -
+2024-03-21 16:14:01,127 - basicLogger - INFO - Retrieving trackArtist at index 0
+2024-03-21 16:14:01,468 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:14:01] "GET /track-artist?index=0 HTTP/1.1" 200 -
+2024-03-21 16:15:48,879 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8110
+2024-03-21 16:15:48,880 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-03-21 16:19:53,206 - basicLogger - INFO - Retrieving addArtist at index 0
+2024-03-21 16:19:53,565 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:19:53] "GET /artist?index=0 HTTP/1.1" 200 -
+2024-03-21 16:19:57,744 - basicLogger - INFO - Retrieving updateSocialMedia at index 0
+2024-03-21 16:19:58,102 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:19:58] "GET /social-media?index=0 HTTP/1.1" 200 -
+2024-03-21 16:20:06,421 - basicLogger - INFO - Retrieving addArtist at index 1000
+2024-03-21 16:20:07,835 - basicLogger - ERROR - addArtist not found at index 1000
+2024-03-21 16:20:07,840 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:20:07] "[33mGET /artist?index=1000 HTTP/1.1[0m" 404 -
+2024-03-21 16:20:17,828 - basicLogger - INFO - Retrieving addArtist at index 5
+2024-03-21 16:20:18,231 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:20:18] "GET /artist?index=5 HTTP/1.1" 200 -
+2024-03-21 16:20:33,818 - basicLogger - INFO - Retrieving updateSocialMedia at index 6
+2024-03-21 16:20:34,180 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:20:34] "GET /social-media?index=6 HTTP/1.1" 200 -
+2024-03-21 16:20:39,695 - basicLogger - INFO - Retrieving updateRadioPlay at index 12
+2024-03-21 16:20:40,053 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:20:40] "GET /radio-play?index=12 HTTP/1.1" 200 -
+2024-03-21 16:20:45,023 - basicLogger - INFO - Retrieving trackArtist at index 20
+2024-03-21 16:20:45,372 - werkzeug - INFO - 127.0.0.1 - - [21/Mar/2024 16:20:45] "GET /track-artist?index=20 HTTP/1.1" 200 -
