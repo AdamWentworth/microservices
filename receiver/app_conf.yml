@@ -1,12 +1,12 @@
 version: 1
 addArtist:
-  url: http://localhost:8090/artist
+  url: http://kafka-3855.westus3.cloudapp.azure.com:8090/artist
 updateSocialMedia:
-  url: http://localhost:8090/artist/social-media-update
+  url: http://kafka-3855.westus3.cloudapp.azure.com:8090/artist/social-media-update
 updateRadioPlay:
-  url: http://localhost:8090/artist/radio-play-update
+  url: http://kafka-3855.westus3.cloudapp.azure.com:8090/artist/radio-play-update
 trackArtist:
-  url: http://localhost:8090/user/track-artist
+  url: http://kafka-3855.westus3.cloudapp.azure.com:8090/user/track-artist
 events:
   hostname: kafka-3855.westus3.cloudapp.azure.com
   port: 9092

@@ -4,4 +4,4 @@ datastore:
 scheduler:
   period_sec: 5
 eventstore:
-  url: http://localhost:8090
+  url: http://kafka-3855.westus3.cloudapp.azure.com:8090

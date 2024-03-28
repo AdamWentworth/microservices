@@ -1,6 +1,6 @@
 version: 1
 kafka:
-  hostname: localhost
+  hostname: kafka-3855.westus3.cloudapp.azure.com
   port: 9092
   topic: events
 service:
