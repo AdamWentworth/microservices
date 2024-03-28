@@ -66,6 +66,7 @@ def populate_stats():
 
     try:
         # Fetch total number of artists
+        logger.info(f"Requesting total number of artists from URL: {get_artists_url}")
         artist_response = requests.get(get_artists_url)
         if artist_response.status_code == 200:
             artists_data = artist_response.json()
@@ -77,6 +78,7 @@ def populate_stats():
                     logger.info(f"Received data for artist '{artist_name}' with trace_id {trace_id}.")
 
         # Fetch max followers
+        logger.info(f"Requesting max followers data from URL: {get_max_followers_url}")
         max_followers_response = requests.get(get_max_followers_url)
         if max_followers_response.status_code == 200:
             max_followers_data = max_followers_response.json()
@@ -86,6 +88,7 @@ def populate_stats():
                 logger.info(f"Received max followers data: {new_stats.max_followers} with trace_id {trace_id}.")
 
         # Fetch max radio play
+        logger.info(f"Requesting max radio play data from URL: {get_max_radio_play_url}")
         max_radio_play_response = requests.get(get_max_radio_play_url)
         if max_radio_play_response.status_code == 200:
             max_radio_play_data = max_radio_play_response.json()
@@ -95,6 +98,7 @@ def populate_stats():
                 logger.info(f"Received max radio play data: {new_stats.max_spins} with trace_id {trace_id}.")
 
         # Fetch tracked artists
+        logger.info(f"Requesting tracked artists data from URL: {get_tracked_artists_url}")
         tracked_artists_response = requests.get(get_tracked_artists_url)
         if tracked_artists_response.status_code == 200:
             tracked_artists_data = tracked_artists_response.json()
