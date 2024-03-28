@@ -1,0 +1,9 @@
+connexion[flask]==3.0.5
+swagger-ui-bundle==1.1.0
+SQLAlchemy==2.0.25
+mysql-connector-python==8.3.0
+pymysql==1.1.0
+pykafka==2.8.0
+PyYAML==6.0.1
+flask==3.0.1
+uvicorn==0.27.0  # Specify the version of uvicorn you need
