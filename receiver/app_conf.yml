@@ -8,6 +8,6 @@ updateRadioPlay:
 trackArtist:
   url: http://localhost:8090/user/track-artist
 events:
-  hostname: kafka-3855.westus3.cloudapp.azure.com
+  hostname: localhost
   port: 9092
   topic: events
