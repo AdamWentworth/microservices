@@ -8,6 +8,7 @@ import logging.config
 import yaml
 import connexion
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask_cors import CORS
 
 # Load logging and application configurations
 with open('log_conf.yml', 'r') as f:
@@ -22,6 +23,7 @@ with open('app_conf.yml', 'r') as f:
 app = connexion.FlaskApp(__name__, specification_dir='./')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
+CORS(app.app)
 
 # Create SQLAlchemy engine and session
 engine = create_engine(f"sqlite:///{app_config['datastore']['filename']}")
