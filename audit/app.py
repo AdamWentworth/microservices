@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from pykafka import KafkaClient
 import yaml
 import logging.config
+from flask_cors import CORS
 
 # Load configurations
 with open('app_conf.yml', 'r') as f:
@@ -15,6 +16,7 @@ with open('log_conf.yml', 'r') as f:
 logger = logging.getLogger('basicLogger')
 
 app = Flask(__name__)
+CORS(app)
 
 def get_event_reading(index, event_type):
     """Generic function to get an event reading based on type and index."""

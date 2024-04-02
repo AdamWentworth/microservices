@@ -75,5 +75,14 @@ services:
     depends_on:
       - kafka
 
+  dashboard:
+    build:
+      context: ../dashboard-ui
+    ports:
+      - "3000:3000"
+    depends_on:
+      - processing
+      - audit
+
 volumes:
   my-db:
