@@ -1,6 +1,7 @@
 import connexion
 import yaml
 import json
+import time
 from connexion import NoContent
 from flask import request
 from sqlalchemy.orm import sessionmaker
@@ -15,7 +16,6 @@ from datetime import datetime, timezone
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from threading import Thread
-
 
 import logging
 logging.basicConfig()
@@ -52,12 +52,28 @@ app = connexion.FlaskApp(__name__, specification_dir='./')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
 def process_messages():
-    hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-    client = KafkaClient(hosts=hostname)
-    topic = client.topics[str.encode(app_config['events']['topic'])]
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
-                                         reset_offset_on_start=False,
-                                         auto_offset_reset=OffsetType.LATEST)
+    max_retries = app_config['kafka']['max_retries']  # Get maximum number of retries from config
+    retry_count = 0
+    sleep_interval = app_config['kafka']['retry_interval']  # Get sleep interval between retries from config
+
+    while retry_count < max_retries:
+        try:
+            logger.info(f"Trying to connect to Kafka, attempt {retry_count + 1}")
+            hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+            client = KafkaClient(hosts=hostname)
+            topic = client.topics[str.encode(app_config['events']['topic'])]
+            consumer = topic.get_simple_consumer(consumer_group=b'event_group',
+                                                 reset_offset_on_start=False,
+                                                 auto_offset_reset=OffsetType.LATEST)
+            break  # If connection is successful, break out of the loop
+        except Exception as e:
+            logger.error(f"Connection to Kafka failed on attempt {retry_count + 1}: {e}")
+            if retry_count < max_retries - 1:  # Wait only if there are more retries left
+                time.sleep(sleep_interval)
+            retry_count += 1
+    else:
+        logger.error("Failed to connect to Kafka after maximum retries, exiting.")
+        return
 
     for msg in consumer:
         if msg is not None:
