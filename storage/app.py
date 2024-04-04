@@ -21,7 +21,6 @@ import logging
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
-
 # Load logging configuration
 with open('log_conf.yml', 'r') as log_conf_file:
     log_config = yaml.safe_load(log_conf_file)
@@ -56,9 +55,9 @@ app = connexion.FlaskApp(__name__, specification_dir='./')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
 def process_messages():
-    max_retries = app_config['kafka']['max_retries']  # Get maximum number of retries from config
+    max_retries = app_config['events']['max_retries']  # Get maximum number of retries from config
     retry_count = 0
-    sleep_interval = app_config['kafka']['retry_interval']  # Get sleep interval between retries from config
+    sleep_interval = app_config['events']['retry_interval']  # Get sleep interval between retries from config
 
     while retry_count < max_retries:
         try:
