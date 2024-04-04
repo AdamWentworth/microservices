@@ -54,28 +54,26 @@ Session = sessionmaker(bind=engine)
 app = connexion.FlaskApp(__name__, specification_dir='./')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
-def process_messages():
-    max_retries = app_config['events']['max_retries']  # Get maximum number of retries from config
+def process_messages(app_config):
     retry_count = 0
-    sleep_interval = app_config['events']['retry_interval']  # Get sleep interval between retries from config
-
-    while retry_count < max_retries:
+    while retry_count < app_config['events']['max_retries']:
         try:
-            logger.info(f"Trying to connect to Kafka, attempt {retry_count + 1}")
-            hostname = f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-            client = KafkaClient(hosts=hostname)
+            logger.info(f"Attempting to connect to Kafka, try {retry_count + 1}")
+            client = KafkaClient(hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}")
             topic = client.topics[str.encode(app_config['events']['topic'])]
-            consumer = topic.get_simple_consumer(consumer_group=b'event_group',
-                                                 reset_offset_on_start=False,
-                                                 auto_offset_reset=OffsetType.LATEST)
-            break  # If connection is successful, break out of the loop
+            consumer = topic.get_simple_consumer(
+                consumer_group=b'event_group',
+                reset_offset_on_start=False,
+                auto_offset_reset=OffsetType.LATEST
+            )
+            logger.info("Successfully connected to Kafka")
+            break
         except Exception as e:
-            logger.error(f"Connection to Kafka failed on attempt {retry_count + 1}: {e}")
-            if retry_count < max_retries - 1:  # Wait only if there are more retries left
-                time.sleep(sleep_interval)
+            logger.error(f"Failed to connect to Kafka on try {retry_count + 1}: {e}")
+            time.sleep(app_config['events']['retry_interval'])
             retry_count += 1
     else:
-        logger.error("Failed to connect to Kafka after maximum retries, exiting.")
+        logger.error("Failed to connect to Kafka after max retries")
         return
 
     for msg in consumer:

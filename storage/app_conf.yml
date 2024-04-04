@@ -9,6 +9,6 @@ events:
   hostname: kafka-3855.westus3.cloudapp.azure.com # Your VM’s Hostname
   port: 9092
   topic: events
-  max_retries: 5  
+  max_retries: 50 
   retry_interval: 10
 
