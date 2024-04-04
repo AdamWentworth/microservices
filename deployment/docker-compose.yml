@@ -5,6 +5,8 @@ services:
     ports:
       - "2181:2181"
     hostname: zookeeper
+    volumes:
+      - /home/adam/zookeeper/data:/opt/zookeeper-3.4.13/data
 
   kafka:
     image: wurstmeister/kafka
@@ -13,15 +15,18 @@ services:
       - "9092:9092"
     hostname: kafka
     environment:
-      KAFKA_CREATE_TOPICS: "events"
+      KAFKA_CREATE_TOPICS: "events:1:1" # topic:partitions:replication factor
       KAFKA_ADVERTISED_HOST_NAME: kafka # Use the service name for internal networking
       KAFKA_LISTENERS: INSIDE://:29092,OUTSIDE://:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LOG_DIRS: /kafka/kafka-logs
+      KAFKA_BROKER_ID: 1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /home/adam/kafka:/kafka/kafka-logs
     depends_on:
       - zookeeper
 

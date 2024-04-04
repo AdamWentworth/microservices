@@ -5,17 +5,18 @@ export default function EndpointAudit(props) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [log, setLog] = useState(null);
     const [error, setError] = useState(null);
-    const rand_val = Math.floor(Math.random() * 100); // Get a random event from the event store
+    const [index, setIndex] = useState(null); // Added state for index
 
     useEffect(() => {
         const getAudit = () => {
-            // Ensure you replace "your-audit-service-dns" with the actual DNS name or IP address of your service
+            const rand_val = Math.floor(Math.random() * 100); // Moved inside useEffect
             fetch(`http://kafka-3855.westus3.cloudapp.azure.com:8110/${props.endpoint}?index=${rand_val}`)
                 .then(res => res.json())
                 .then(
                     (result) => {
                         console.log("Received Audit Results for " + props.endpoint);
                         setLog(result);
+                        setIndex(rand_val); // Set index state here
                         setIsLoaded(true);
                     },
                     (error) => {
@@ -27,7 +28,7 @@ export default function EndpointAudit(props) {
 
         const interval = setInterval(getAudit, 4000); // Refresh the fetched audit event every 4 seconds
         return () => clearInterval(interval);
-    }, [props.endpoint, rand_val]); // Adding props.endpoint and rand_val to useEffect dependencies
+    }, [props.endpoint]); // Removed rand_val from dependencies
 
     if (error) {
         return (<div className={"error"}>Error: {error.message}</div>);
@@ -36,7 +37,7 @@ export default function EndpointAudit(props) {
     } else {
         return (
             <div>
-                <h3>{props.endpoint.toUpperCase()} Event {rand_val}</h3>
+                <h3>{props.endpoint.toUpperCase()} Event {index}</h3> {/* Displaying the stateful index */}
                 <div className="log-display">
                     {log ? Object.keys(log).map((key) => (
                         <p key={key}><strong>{key}:</strong> {JSON.stringify(log[key], null, 2)}</p>
