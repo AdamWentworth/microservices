@@ -23,9 +23,9 @@ kafka_config = app_config['events']
 kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
 
 def initialize_kafka_producer():
-    max_retries = app_config['events']['max_retries']
+    max_retries = kafka_config['max_retries'] 
     retry_count = 0
-    sleep_interval = app_config['events']['retry_interval']
+    sleep_interval = kafka_config['retry_interval']
     producer = None
 
     while retry_count < max_retries:
