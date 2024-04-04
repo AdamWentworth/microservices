@@ -56,7 +56,6 @@ app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
 # Inside your app initialization or function, after loading app_config
 kafka_config = app_config['events']
-kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
 
 def process_messages(kafka_config):
     retry_count = 0

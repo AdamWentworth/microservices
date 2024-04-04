@@ -64,23 +64,20 @@ services:
       - kafka
 
   processing:
-    build:
-      context: ../processing
+    image: processing:latest
     network_mode: "host"
     depends_on:
       - storage
 
   audit:
-    build:
-      context: ../audit
+    image: audit:latest
     ports:
       - "8110:8110"
     depends_on:
       - kafka
 
   dashboard:
-    build:
-      context: ../dashboard-ui
+    image: dashboard:latest
     ports:
       - "3000:3000"
     depends_on:
