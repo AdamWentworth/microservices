@@ -20,8 +20,10 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Artist" enabled="true">
-          <stringProp name="HTTPSampler.path">http://kafka-3855.westus3.cloudapp.azure.com:8080/artist</stringProp>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Artist">
+          <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.path">/artist</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -61,8 +63,10 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Social Media Update" enabled="true">
-          <stringProp name="HTTPSampler.path">http://kafka-3855.westus3.cloudapp.azure.com:8080/artist/social-media-update</stringProp>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Social Media Update">
+          <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.path">/artist/social-media-update</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -95,8 +99,10 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Radio Play Update" enabled="true">
-          <stringProp name="HTTPSampler.path">http://kafka-3855.westus3.cloudapp.azure.com:8080/artist/radio-play-update</stringProp>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Radio Play Update">
+          <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.path">/artist/radio-play-update</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -129,8 +135,10 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Track Artist" enabled="true">
-          <stringProp name="HTTPSampler.path">http://kafka-3855.westus3.cloudapp.azure.com:8080/user/track-artist</stringProp>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Track Artist">
+          <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.path">/user/track-artist</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
