@@ -56,8 +56,9 @@ app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
 # Inside your app initialization or function, after loading app_config
 kafka_config = app_config['events']
+kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
 
-def process_messages(kafka_config):
+def process_messages():
     retry_count = 0
     while retry_count < kafka_config['max_retries']:
         try:
@@ -353,7 +354,7 @@ def trackArtist():
         session.close()
         
 if __name__ == "__main__":
-    t1 = Thread(target=process_messages(kafka_config))
+    t1 = Thread(target=process_messages)
     t1.setDaemon(True)
     t1.start()
     app.run(port=8090, host="0.0.0.0")
