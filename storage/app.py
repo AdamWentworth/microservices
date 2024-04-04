@@ -54,13 +54,17 @@ Session = sessionmaker(bind=engine)
 app = connexion.FlaskApp(__name__, specification_dir='./')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
-def process_messages(app_config):
+# Inside your app initialization or function, after loading app_config
+kafka_config = app_config['events']
+kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
+
+def process_messages(kafka_config):
     retry_count = 0
-    while retry_count < app_config['events']['max_retries']:
+    while retry_count < kafka_config['max_retries']:
         try:
             logger.info(f"Attempting to connect to Kafka, try {retry_count + 1}")
-            client = KafkaClient(hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}")
-            topic = client.topics[str.encode(app_config['events']['topic'])]
+            client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
+            topic = client.topics[str.encode(kafka_config['topic'])]
             consumer = topic.get_simple_consumer(
                 consumer_group=b'event_group',
                 reset_offset_on_start=False,
@@ -70,7 +74,7 @@ def process_messages(app_config):
             break
         except Exception as e:
             logger.error(f"Failed to connect to Kafka on try {retry_count + 1}: {e}")
-            time.sleep(app_config['events']['retry_interval'])
+            time.sleep(kafka_config['retry_interval'])
             retry_count += 1
     else:
         logger.error("Failed to connect to Kafka after max retries")
@@ -350,7 +354,7 @@ def trackArtist():
         session.close()
         
 if __name__ == "__main__":
-    t1 = Thread(target=process_messages)
+    t1 = Thread(target=process_messages(kafka_config))
     t1.setDaemon(True)
     t1.start()
     app.run(port=8090, host="0.0.0.0")
