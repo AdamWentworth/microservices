@@ -21,34 +21,26 @@ with open('app_conf.yml', 'r') as f:
 # Inside your app initialization or function, after loading app_config
 kafka_config = app_config['events']
 kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
-def initialize_kafka_producer(kafka_config):
-    max_retries = kafka_config['max_retries']
-    retry_interval = kafka_config['retry_interval']  # in seconds
-    kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
-    producer = None
-
-    for attempt in range(max_retries):
+ 
+def initialize_kafka_producer_with_retry(kafka_config, max_retries=5, retry_wait=3):
+    """Initialize Kafka producer with retry logic."""
+    retry_count = 0
+    while retry_count < max_retries:
         try:
-            logger.info(f"Attempt {attempt + 1} to connect to Kafka at {kafka_server}")
-            client = KafkaClient(hosts=kafka_server)
-            topic = client.topics[str.encode(kafka_config['topic'])]
-            producer = topic.get_sync_producer()
-            logger.info("Kafka Producer established successfully.")
-            return producer
+            logger.info('Attempting to connect to Kafka...')
+            kafka_client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
+            kafka_topic = kafka_client.topics[str.encode(kafka_config['topic'])]
+            kafka_producer = kafka_topic.get_sync_producer()
+            logger.info('Successfully connected to Kafka')
+            return kafka_producer
         except Exception as e:
-            logger.error(f"Failed to connect to Kafka on attempt {attempt + 1}: {e}")
-            if attempt < max_retries - 1:
-                logger.info(f"Retrying in {retry_interval} seconds...")
-                time.sleep(retry_interval)
-            else:
-                logger.error("Maximum retry attempts reached, failing...")
-                break
+            logger.error(f"Failed to connect to Kafka on retry {retry_count}: {e}")
+            time.sleep(retry_wait)
+            retry_count += 1
+    logger.error("Failed to initialize Kafka producer after max retries")
+    return None
 
-    if not producer:
-        logger.error("Failed to establish Kafka Producer after maximum retries, exiting.")
-        raise SystemExit("Kafka Producer Initialization Failure")
-
-producer = initialize_kafka_producer(kafka_config)
+producer = initialize_kafka_producer_with_retry(kafka_config)
 
 def generate_trace_id():
     return str(uuid.uuid4())
