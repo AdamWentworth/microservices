@@ -43,16 +43,15 @@ services:
       - my-db:/var/lib/mysql
 
   receiver:
-    build:
-      context: ../receiver
+    image: receiver:latest
     ports:
       - "8080:8080"
     depends_on:
       - kafka
+      - db
 
   storage:
-    build:
-      context: ../storage
+    image: storage:latest
     ports:
       - "8090:8090"
     environment:
