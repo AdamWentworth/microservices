@@ -76,9 +76,6 @@ def process_messages():
             logger.error(f"Failed to connect to Kafka on try {retry_count + 1}: {e}")
             time.sleep(kafka_config['retry_interval'])
             retry_count += 1
-    else:
-        logger.error("Failed to connect to Kafka after max retries")
-        return
 
     for msg in consumer:
         if msg is not None:
