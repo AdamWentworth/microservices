@@ -30,7 +30,7 @@ def initialize_kafka_producer_with_retry(kafka_config):
             logger.info('Attempting to connect to Kafka...')
             kafka_client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
             kafka_topic = kafka_client.topics[str.encode(kafka_config['topic'])]
-            kafka_producer = kafka_topic.get_sync_producer()
+            kafka_producer = kafka_topic.get_sync_producer(max_retries=100)
             logger.info('Successfully connected to Kafka')
             return kafka_producer
         except Exception as e:
