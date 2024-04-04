@@ -21,33 +21,34 @@ with open('app_conf.yml', 'r') as f:
 # Inside your app initialization or function, after loading app_config
 kafka_config = app_config['events']
 kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
-
-def initialize_kafka_producer():
-    max_retries = kafka_config['max_retries'] 
-    retry_count = 0
-    sleep_interval = kafka_config['retry_interval']
+def initialize_kafka_producer(kafka_config):
+    max_retries = kafka_config['max_retries']
+    retry_interval = kafka_config['retry_interval']  # in seconds
+    kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
     producer = None
 
-    while retry_count < max_retries:
+    for attempt in range(max_retries):
         try:
-            logger.info(f"Attempting to connect to Kafka, try {retry_count + 1}")
+            logger.info(f"Attempt {attempt + 1} to connect to Kafka at {kafka_server}")
             client = KafkaClient(hosts=kafka_server)
             topic = client.topics[str.encode(kafka_config['topic'])]
             producer = topic.get_sync_producer()
             logger.info("Kafka Producer established successfully.")
-            break
+            return producer
         except Exception as e:
-            logger.error(f"Failed to connect to Kafka on attempt {retry_count + 1}: {e}")
-            time.sleep(sleep_interval)
-            retry_count += 1
+            logger.error(f"Failed to connect to Kafka on attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                logger.info(f"Retrying in {retry_interval} seconds...")
+                time.sleep(retry_interval)
+            else:
+                logger.error("Maximum retry attempts reached, failing...")
+                break
 
     if not producer:
         logger.error("Failed to establish Kafka Producer after maximum retries, exiting.")
         raise SystemExit("Kafka Producer Initialization Failure")
 
-    return producer
-
-producer = initialize_kafka_producer()
+producer = initialize_kafka_producer(kafka_config)
 
 def generate_trace_id():
     return str(uuid.uuid4())
