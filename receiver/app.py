@@ -22,10 +22,10 @@ with open('app_conf.yml', 'r') as f:
 kafka_config = app_config['events']
 kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
  
-def initialize_kafka_producer_with_retry(kafka_config, max_retries=5, retry_wait=3):
+def initialize_kafka_producer_with_retry(kafka_config):
     """Initialize Kafka producer with retry logic."""
     retry_count = 0
-    while retry_count < max_retries:
+    while retry_count < kafka_config['max_retries']:
         try:
             logger.info('Attempting to connect to Kafka...')
             kafka_client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
@@ -35,8 +35,9 @@ def initialize_kafka_producer_with_retry(kafka_config, max_retries=5, retry_wait
             return kafka_producer
         except Exception as e:
             logger.error(f"Failed to connect to Kafka on retry {retry_count}: {e}")
-            time.sleep(retry_wait)
+            time.sleep(kafka_config['retry_interval'])
             retry_count += 1
+            print('RETRYING ATTEMPT:', retry_count)
     logger.error("Failed to initialize Kafka producer after max retries")
     return None
 
