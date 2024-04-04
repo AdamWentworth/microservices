@@ -5,6 +5,7 @@ import uuid
 import logging
 import logging.config
 import json
+import time
 from datetime import datetime
 from pykafka import KafkaClient
 
@@ -20,9 +21,33 @@ with open('app_conf.yml', 'r') as f:
 # Inside your app initialization or function, after loading app_config
 kafka_config = app_config['events']
 kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
-client = KafkaClient(hosts=kafka_server)
-topic = client.topics[str.encode(kafka_config['topic'])]
-producer = topic.get_sync_producer()
+
+def initialize_kafka_producer():
+    max_retries = app_config['kafka']['max_retries']
+    retry_count = 0
+    sleep_interval = app_config['kafka']['retry_interval']
+    producer = None
+
+    while retry_count < max_retries:
+        try:
+            logger.info(f"Attempting to connect to Kafka, try {retry_count + 1}")
+            client = KafkaClient(hosts=kafka_server)
+            topic = client.topics[str.encode(kafka_config['topic'])]
+            producer = topic.get_sync_producer()
+            logger.info("Kafka Producer established successfully.")
+            break
+        except Exception as e:
+            logger.error(f"Failed to connect to Kafka on attempt {retry_count + 1}: {e}")
+            time.sleep(sleep_interval)
+            retry_count += 1
+
+    if not producer:
+        logger.error("Failed to establish Kafka Producer after maximum retries, exiting.")
+        raise SystemExit("Kafka Producer Initialization Failure")
+
+    return producer
+
+producer = initialize_kafka_producer()
 
 def generate_trace_id():
     return str(uuid.uuid4())
