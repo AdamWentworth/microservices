@@ -46,6 +46,10 @@ services:
     image: receiver:latest
     ports:
       - "8080:8080"
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - /home/adam/config/receiver:/config
     depends_on:
       - kafka
       - db
@@ -55,10 +59,13 @@ services:
     ports:
       - "8090:8090"
     environment:
-      MYSQL_USER: 'adam'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_DATABASE: 'artist_tracker'
-      MYSQL_HOSTNAME: 'db' # Use the service name for the DB
+      - TARGET_ENV=test
+      - MYSQL_USER=adam
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=artist_tracker
+      - MYSQL_HOSTNAME=db
+    volumes:
+      - /home/adam/config/storage:/config
     depends_on:
       - db
       - kafka
@@ -66,6 +73,10 @@ services:
   processing:
     image: processing:latest
     network_mode: "host"
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - /home/adam/config/processing:/config
     depends_on:
       - storage
 
@@ -73,6 +84,10 @@ services:
     image: audit:latest
     ports:
       - "8110:8110"
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - /home/adam/config/audit:/config
     depends_on:
       - kafka
 
