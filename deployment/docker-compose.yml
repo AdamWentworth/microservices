@@ -50,6 +50,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/adam/config/receiver:/config
+      - /home/adam/logs:/logs
     depends_on:
       - kafka
       - db
@@ -66,6 +67,7 @@ services:
       - MYSQL_HOSTNAME=db
     volumes:
       - /home/adam/config/storage:/config
+      - /home/adam/logs:/logs
     depends_on:
       - db
       - kafka
@@ -77,6 +79,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/adam/config/processing:/config
+      - /home/adam/logs:/logs
     depends_on:
       - storage
 
@@ -88,6 +91,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/adam/config/audit:/config
+      - /home/adam/logs:/logs
     depends_on:
       - kafka
 
