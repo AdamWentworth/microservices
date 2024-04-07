@@ -1,3 +1,4 @@
+import os
 import connexion
 import yaml
 import json
@@ -11,25 +12,32 @@ from artists import Artist
 from social_media import SocialMedia
 from radio_play import RadioPlay
 from tracked_artist import TrackedArtist
+import logging
 import logging.config
 from datetime import datetime, timezone
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from threading import Thread
 
-import logging
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# Adjusted logging setup
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+else:
+    print("In Dev Environment")
+    app_conf_file = "app_conf.yml"
+    log_conf_file = "log_conf.yml"
 
-# Load logging configuration
-with open('log_conf.yml', 'r') as log_conf_file:
+# Load logging configuration dynamically
+with open(log_conf_file, 'r') as log_conf_file:
     log_config = yaml.safe_load(log_conf_file)
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
 
-# Load database configuration from app_conf.yml
-with open('app_conf.yml', 'r') as f:
+# Load database and other configuration from app_conf.yml dynamically
+with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f)
 
 # MySQL database connection details from app_conf.yml
