@@ -34,7 +34,7 @@ with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f)
 
 # Adjust this to the expected path where the SQLite DB should be created or exists
-db_full_path = f"/data/{app_config['datastore']['filename']}" if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test" else app_config['datastore']['filename']
+db_full_path = app_config['datastore']['filename']
 
 # Initialize the database (this will create it if it doesn't exist)
 initialize_db(db_full_path)
