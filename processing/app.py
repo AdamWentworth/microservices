@@ -9,16 +9,35 @@ import yaml
 import connexion
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_cors import CORS
+import os  # Import os to access environment variables
+from create_table import initialize_db
 
-# Load logging and application configurations
-with open('log_conf.yml', 'r') as f:
+# New conditional configuration loading based on TARGET_ENV
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+else:
+    print("In Dev Environment")
+    app_conf_file = "app_conf.yml"
+    log_conf_file = "log_conf.yml"
+
+# Load logging configuration dynamically
+with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f)
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
 
-with open('app_conf.yml', 'r') as f:
+# Load application configuration dynamically
+with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f)
+
+# Adjust this to the expected path where the SQLite DB should be created or exists
+db_full_path = app_config['datastore']['filename']
+
+# Initialize the database (this will create it if it doesn't exist)
+initialize_db(db_full_path)
 
 app = connexion.FlaskApp(__name__, specification_dir='./')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
@@ -26,7 +45,7 @@ app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 CORS(app.app)
 
 # Create SQLAlchemy engine and session
-engine = create_engine(f"sqlite:///{app_config['datastore']['filename']}")
+engine = create_engine(f"sqlite:///{db_full_path}")
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 

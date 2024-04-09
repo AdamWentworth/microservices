@@ -4,12 +4,24 @@ from pykafka import KafkaClient
 import yaml
 import logging.config
 from flask_cors import CORS
+import os  # Import os for environment variable access
 
-# Load configurations
-with open('app_conf.yml', 'r') as f:
+# New conditional configuration loading based on TARGET_ENV
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+else:
+    print("In Dev Environment")
+    app_conf_file = "app_conf.yml"
+    log_conf_file = "log_conf.yml"
+
+# Load application configuration dynamically
+with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f.read())
 
-with open('log_conf.yml', 'r') as f:
+# Load logging configuration dynamically
+with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
