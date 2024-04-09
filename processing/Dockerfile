@@ -7,9 +7,9 @@ LABEL maintainer="adamjohnwentworth@gmail.com"
 # Avoid prompts from apt during the build
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Install Python, Pip, and other necessary tools
+# Install Python, Pip, SQLite3, and other necessary tools
 RUN apt-get update -y && \
-    apt-get install -y python3 python3-pip && \
+    apt-get install -y python3 python3-pip sqlite3 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
