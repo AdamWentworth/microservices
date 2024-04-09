@@ -80,6 +80,7 @@ services:
     volumes:
       - /home/adam/config/processing:/config
       - /home/adam/logs:/logs
+      - processing-db:/data
     depends_on:
       - storage
 
@@ -105,3 +106,4 @@ services:
 
 volumes:
   my-db:
+  processing-db:

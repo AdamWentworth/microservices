@@ -10,6 +10,7 @@ import connexion
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_cors import CORS
 import os  # Import os to access environment variables
+from create_table import initialize_db
 
 # New conditional configuration loading based on TARGET_ENV
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
@@ -32,13 +33,19 @@ logger = logging.getLogger('basicLogger')
 with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f)
 
+# Adjust this to the expected path where the SQLite DB should be created or exists
+db_full_path = f"/data/{app_config['datastore']['filename']}" if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test" else app_config['datastore']['filename']
+
+# Initialize the database (this will create it if it doesn't exist)
+initialize_db(db_full_path)
+
 app = connexion.FlaskApp(__name__, specification_dir='./')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
 CORS(app.app)
 
 # Create SQLAlchemy engine and session
-engine = create_engine(f"sqlite:///{app_config['datastore']['filename']}")
+engine = create_engine(f"sqlite:///{db_full_path}")
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 
