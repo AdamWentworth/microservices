@@ -25,11 +25,14 @@ with open('log_conf.yml', 'r') as f:
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger(__name__)
+logger.info(f"Logging configured using {log_conf_file}, running in {'Test' if 'TARGET_ENV' in os.environ and os.environ['TARGET_ENV'] == 'test' else 'Dev'} environment")
 
 with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f.read())
+logger.info(f"Application configuration loaded from {app_conf_file}")
 
 def initialize_db():
+    logger.debug("Initializing database and tables if not exists")
     connection = sqlite3.connect('event_logs.db')
     cursor = connection.cursor()
 
@@ -42,11 +45,12 @@ def initialize_db():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-
     connection.commit()
     connection.close()
+    logger.info("Database initialization complete")
 
 def consume_events():
+    logger.info("Starting to consume events from Kafka")
     retry = True
     while retry:
         try:
@@ -54,55 +58,60 @@ def consume_events():
             if client is not None:
                 topic = client.topics[b'event_log']
                 consumer = topic.get_simple_consumer()
+                logger.info(f"Subscribed to topic 'event_log'")
                 for message in consumer:
                     if message is not None:
-                        logger.info(f"Received message: {message.value.decode('utf-8')}")
+                        logger.debug(f"Received message: {message.value.decode('utf-8')}")
                         store_event_log(message.value.decode('utf-8'))
             else:
                 logger.error("Kafka client could not be initialized. Retrying...")
-                time.sleep(5)  # Wait a bit before retrying to avoid spamming in case of persistent issues
+                time.sleep(5)
         except Exception as e:
             logger.error(f"Error consuming Kafka messages: {e}. Attempting to restart consumer.")
-            time.sleep(5)  # Wait a bit before retrying
+            time.sleep(5)
 
 def store_event_log(message):
-    # Assuming message is a JSON string
+    logger.debug(f"Storing event log: {message}")
     parsed_message = json.loads(message)
     connection = sqlite3.connect('event_logs.db')
     cursor = connection.cursor()
-
-    # Get the current time in UTC format
     utc_now = datetime.now(timezone.utc)
-
-    # Insert the message into the database with the UTC timestamp
-    cursor.execute('''
-        INSERT INTO event_logs (message, code, timestamp)
-        VALUES (?, ?, ?)
-    ''', (message, parsed_message.get('code'), utc_now.strftime('%Y-%m-%d %H:%M:%S')))
-
-    connection.commit()
-    connection.close()
+    try:
+        cursor.execute('''
+            INSERT INTO event_logs (message, code, timestamp)
+            VALUES (?, ?, ?)
+        ''', (message, parsed_message.get('code'), utc_now.strftime('%Y-%m-%d %H:%M:%S')))
+        connection.commit()
+        logger.info(f"Successfully stored event log with code {parsed_message.get('code')}")
+    except Exception as e:
+        logger.error(f"Failed to insert event log into database: {e}")
+    finally:
+        connection.close()
 
 def get_events_stats():
-    connection = sqlite3.connect('event_logs.db')
-    cursor = connection.cursor()
+    logger.debug("Fetching events statistics from the database.")
+    try:
+        connection = sqlite3.connect('event_logs.db')
+        cursor = connection.cursor()
 
-    cursor.execute('''
-        SELECT code, COUNT(*) FROM event_logs GROUP BY code
-    ''')
+        cursor.execute('''
+            SELECT code, COUNT(*) FROM event_logs GROUP BY code
+        ''')
+        stats = {code: count for code, count in cursor.fetchall()}
+        logger.info(f"Successfully fetched events statistics: {stats}")
 
-    stats = {code: count for code, count in cursor.fetchall()}
-    connection.close()
+    except Exception as e:
+        logger.error(f"Failed to fetch events statistics due to an error: {e}")
+        stats = {}
+
+    finally:
+        connection.close()
+        logger.debug("Database connection closed.")
+
     return stats
 
 def get_kafka_client(retries=5, wait_time=5):
-    """
-    Attempts to connect to Kafka with retry logic.
-
-    :param retries: Number of attempts to connect.
-    :param wait_time: Time to wait between retries in seconds.
-    :return: KafkaClient instance or None if connection failed.
-    """
+    logger.debug(f"Attempting to connect to Kafka with {retries} retries remaining")
     with open('app_conf.yml', 'r') as f:
         config = yaml.safe_load(f.read())
         kafka_config = config['kafka']
@@ -112,11 +121,9 @@ def get_kafka_client(retries=5, wait_time=5):
             logger.info("Successfully connected to Kafka.")
             return client
         except Exception as e:
-            logger.error(f"Failed to connect to Kafka: {e}")
+            logger.error(f"Failed to connect to Kafka: {e}. Retrying in {wait_time} seconds...")
             retries -= 1
-            if retries > 0:
-                logger.info(f"Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
+            time.sleep(wait_time)
     logger.error("Unable to connect to Kafka after retries.")
     return None
 
@@ -127,6 +134,8 @@ app.add_api("openapi.yml", base_path="/event-logger", strict_validation=True,
 
 if __name__ == '__main__':
     initialize_db()
-    # Start Kafka consumer in a separate thread
+    logger.info("Database initialized, starting Kafka consumer thread")
     Thread(target=consume_events, daemon=True).start()
     app.run(port=8120, host="0.0.0.0")
+    logger.info("Application started")
+
