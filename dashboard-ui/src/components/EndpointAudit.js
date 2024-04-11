@@ -10,7 +10,7 @@ export default function EndpointAudit(props) {
     useEffect(() => {
         const getAudit = () => {
             const rand_val = Math.floor(Math.random() * 100); // Moved inside useEffect
-            fetch(`http://kafka-3855.westus3.cloudapp.azure.com:8110/${props.endpoint}?index=${rand_val}`)
+            fetch(`http://kafka-3855.westus3.cloudapp.azure.com/audit/${props.endpoint}?index=${rand_val}`)
                 .then(res => res.json())
                 .then(
                     (result) => {
