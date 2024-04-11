@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from base import Base 
-from stats import Stats  
+from base import Base
+from stats import Stats
 import requests
 from datetime import datetime, timedelta, timezone
 import logging.config
@@ -40,9 +40,13 @@ db_full_path = app_config['datastore']['filename']
 initialize_db(db_full_path)
 
 app = connexion.FlaskApp(__name__, specification_dir='./')
-app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
+app.add_api("openapi.yml", base_path="/processing", strict_validation=True,
+            validate_responses=True)
 
-CORS(app.app)
+# Disable CORS in the test environment
+if "TARGET_ENV" not in os.environ or os.environ["TARGET_ENV"] != "test":
+    CORS(app.app)  # app.app refers to the underlying Flask app
+    app.app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Create SQLAlchemy engine and session
 engine = create_engine(f"sqlite:///{db_full_path}")

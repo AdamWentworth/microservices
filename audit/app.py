@@ -1,10 +1,11 @@
-import json
-from flask import Flask, request, jsonify
-from pykafka import KafkaClient
+import os
+import connexion
+from connexion import NoContent
 import yaml
 import logging.config
-from flask_cors import CORS
-import os  # Import os for environment variable access
+from pykafka import KafkaClient
+import json
+from flask_cors import CORS  # Ensure you import CORS
 
 # New conditional configuration loading based on TARGET_ENV
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
@@ -16,23 +17,27 @@ else:
     app_conf_file = "app_conf.yml"
     log_conf_file = "log_conf.yml"
 
-# Load application configuration dynamically
-with open(app_conf_file, 'r') as f:
-    app_config = yaml.safe_load(f.read())
-
-# Load logging configuration dynamically
+# Load application and logging configuration dynamically
 with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
 
-app = Flask(__name__)
-CORS(app)
+with open(app_conf_file, 'r') as f:
+    app_config = yaml.safe_load(f.read())
 
+# Initialize the Connexion application
+app = connexion.FlaskApp(__name__, specification_dir='./')
+app.add_api('openapi.yml', base_path='/audit', strict_validation=True, validate_responses=True)
+
+# Disable CORS in the test environment
+if "TARGET_ENV" not in os.environ or os.environ["TARGET_ENV"] != "test":
+    CORS(app.app)  # app.app refers to the underlying Flask app
+    app.app.config['CORS_HEADERS'] = 'Content-Type'
+
+# Function to get an event reading based on type and index
 def get_event_reading(index, event_type):
-    """Generic function to get an event reading based on type and index."""
-    # Corrected from 'events' to 'kafka'
     hostname = f"{app_config['kafka']['hostname']}:{app_config['kafka']['port']}"
     client = KafkaClient(hosts=hostname)
     topic = client.topics[str.encode(app_config['kafka']['topic'])]
@@ -46,7 +51,7 @@ def get_event_reading(index, event_type):
                 event = json.loads(msg_str)
                 if event['type'] == event_type:
                     if count == index:
-                        return jsonify(event), 200
+                        return event, 200
                     count += 1
         logger.error(f"{event_type} not found at index {index}")
         return {"message": "Not Found"}, 404
@@ -54,25 +59,22 @@ def get_event_reading(index, event_type):
         logger.error("Error retrieving message: " + str(e))
         return {"message": "Internal Server Error"}, 500
 
-@app.route('/artist', methods=['GET'])
-def get_artist_event():
-    index = request.args.get('index', default=0, type=int)
-    return get_event_reading(index, 'addArtist')  # Changed from 'artist' to 'addArtist'
+# Defining the operations for Connexion to map to
+def get_artist_event(index):
+    return get_event_reading(index, 'addArtist')
 
-@app.route('/social-media', methods=['GET'])
-def get_social_media_event():
-    index = request.args.get('index', default=0, type=int)
-    return get_event_reading(index, 'updateSocialMedia')  # Make sure this matches exactly
+def get_social_media_event(index):
+    return get_event_reading(index, 'updateSocialMedia')
 
-@app.route('/radio-play', methods=['GET'])
-def get_radio_play_event():
-    index = request.args.get('index', default=0, type=int)
-    return get_event_reading(index, 'updateRadioPlay')  # Make sure this matches exactly
+def get_radio_play_event(index):
+    return get_event_reading(index, 'updateRadioPlay')
 
-@app.route('/track-artist', methods=['GET'])
-def get_track_artist_event():
-    index = request.args.get('index', default=0, type=int)
-    return get_event_reading(index, 'trackArtist')  # Make sure this matches exactly
+def get_track_artist_event(index):
+    return get_event_reading(index, 'trackArtist')
+
+# Setting up the Connexion application
+app = connexion.FlaskApp(__name__, specification_dir='./')
+app.add_api('openapi.yml', base_path='/audit', strict_validation=True, validate_responses=True)
 
 if __name__ == '__main__':
     app.run(port=8110, host="0.0.0.0")
