@@ -8,7 +8,7 @@ export default function AppStats() {
 
     const getStats = () => {
         // Update this URL to match your Processing Service's actual endpoint
-        fetch(`http://kafka-3855.westus3.cloudapp.azure.com:8100/stats`)
+        fetch(`http://kafka-3855.westus3.cloudapp.azure.com/processing/stats`)
             .then(res => res.json())
             .then((result) => {
                 console.log("Received Stats");
