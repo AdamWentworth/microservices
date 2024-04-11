@@ -7,6 +7,17 @@ import sqlite3
 from datetime import datetime, timezone
 import json
 import time
+import os
+
+# New code to determine the environment and load configuration files accordingly
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+else:
+    print("In Dev Environment")
+    app_conf_file = "app_conf.yml"
+    log_conf_file = "log_conf.yml"
 
 # Setup logging
 with open('log_conf.yml', 'r') as f:
@@ -14,6 +25,9 @@ with open('log_conf.yml', 'r') as f:
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger(__name__)
+
+with open(app_conf_file, 'r') as f:
+    app_config = yaml.safe_load(f.read())
 
 def initialize_db():
     connection = sqlite3.connect('event_logs.db')
