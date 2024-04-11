@@ -137,4 +137,13 @@ app.add_api("openapi.yml", base_path="/receiver", strict_validation=True,
 validate_responses=True)
 
 if __name__ == "__main__":
+    event_log_config = app_config['event_log']
+    event_log_producer = initialize_kafka_producer_with_retry(event_log_config)
+    if event_log_producer:
+        startup_message = {
+            "code": "0001",
+            "message": "Receiver service ready and connected to Kafka."
+        }
+        event_log_producer.produce(json.dumps(startup_message).encode('utf-8'))
+        logger.info("Published startup message to event_log topic.")
     app.run(port=8080, host="0.0.0.0")

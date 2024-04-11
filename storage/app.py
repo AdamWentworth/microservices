@@ -79,6 +79,20 @@ def process_messages():
                 auto_offset_reset=OffsetType.LATEST
             )
             logger.info("Successfully connected to Kafka")
+
+            # Publish the startup message to event_log topic
+            event_log_config = app_config['event_log']
+            event_log_client = KafkaClient(hosts=f"{event_log_config['hostname']}:{event_log_config['port']}")
+            event_log_topic = event_log_client.topics[str.encode(event_log_config['topic'])]
+            event_log_producer = event_log_topic.get_sync_producer()
+
+            startup_message = {
+                "code": "0002",
+                "message": "Storage service ready to consume messages from the events topic on Kafka."
+            }
+            event_log_producer.produce(json.dumps(startup_message).encode('utf-8'))
+            logger.info("Published startup message to event_log topic.")
+
             break
         except Exception as e:
             logger.error(f"Failed to connect to Kafka on try {retry_count + 1}: {e}")

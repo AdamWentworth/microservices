@@ -11,6 +11,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask_cors import CORS
 import os  # Import os to access environment variables
 from create_table import initialize_db
+from pykafka import KafkaClient
+import json
+import time
 
 # New conditional configuration loading based on TARGET_ENV
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
@@ -59,6 +62,8 @@ def populate_stats():
     logger.info("Start Periodic Processing")
     session = DBSession()
 
+    global message_count
+
     # Ensure current_datetime is timezone-aware and set to UTC
     current_datetime = datetime.now(timezone.utc)
     prev_stats = session.query(Stats).order_by(Stats.last_updated.desc()).first()
@@ -93,10 +98,12 @@ def populate_stats():
         # Fetch total number of artists
         logger.info(f"Requesting total number of artists from URL: {get_artists_url}")
         artist_response = requests.get(get_artists_url)
+        # After successfully processing artist data
         if artist_response.status_code == 200:
             artists_data = artist_response.json()
-            if artists_data:  # Check if the response is not empty
-                new_stats.total_artists += len(artists_data)  # Update total artists
+            if artists_data:
+                new_stats.total_artists += len(artists_data)
+                message_count += len(artists_data)  # Increment the message count
                 for artist in artists_data:
                     trace_id = artist.get('trace_id', 'N/A')
                     artist_name = artist.get('name', 'Unknown Artist')
@@ -109,6 +116,7 @@ def populate_stats():
             max_followers_data = max_followers_response.json()
             if max_followers_data and max_followers_data.get('max_followers') is not None:  # Check if data is meaningful
                 new_stats.max_followers = max_followers_data.get('max_followers')
+                message_count += 1
                 trace_id = max_followers_data.get('trace_id', 'N/A')
                 logger.info(f"Received max followers data: {new_stats.max_followers} with trace_id {trace_id}.")
 
@@ -119,6 +127,7 @@ def populate_stats():
             max_radio_play_data = max_radio_play_response.json()
             if max_radio_play_data and max_radio_play_data.get('max_radio_play') is not None:  # Check if data is meaningful
                 new_stats.max_spins = max_radio_play_data.get('max_radio_play')
+                message_count += 1
                 trace_id = max_radio_play_data.get('trace_id', 'N/A')
                 logger.info(f"Received max radio play data: {new_stats.max_spins} with trace_id {trace_id}.")
 
@@ -129,6 +138,7 @@ def populate_stats():
             tracked_artists_data = tracked_artists_response.json()
             if tracked_artists_data:  # Check if the response is not empty
                 new_stats.number_of_tracked_artists += len(tracked_artists_data)
+                message_count += len(tracked_artists_data)
                 for tracked_artist in tracked_artists_data:
                     trace_id = tracked_artist.get('trace_id', 'N/A')
                     artist_id = tracked_artist.get('artist_id', 'Unknown Artist')
@@ -139,6 +149,7 @@ def populate_stats():
         # Commit the updates to the database
         session.add(new_stats)
         session.commit()
+        check_and_publish_periodic_message()
         logger.info("Stats updated with new data from storage service.")
 
     except Exception as e:
@@ -178,6 +189,63 @@ def get_stats():
     finally:
         session.close()
 
+def publish_startup_message():
+    startup_message = {"code": "0003", "message": "Processing service started."}
+    safe_publish_message(startup_message)
+
+def init_kafka_producer(retry_count=10, retry_delay=5):
+    """
+    Initialize Kafka producer with retry logic.
+    :param retry_count: Number of attempts to reconnect.
+    :param retry_delay: Seconds to wait between retries.
+    :return: Kafka producer instance or None if unable to connect.
+    """
+    kafka_config = app_config['kafka']
+    while retry_count > 0:
+        try:
+            client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
+            topic = client.topics[str.encode(kafka_config['event_log_topic'])]
+            producer = topic.get_sync_producer()
+            logger.info("Successfully connected to Kafka.")
+            return producer
+        except Exception as e:
+            logger.error(f"Failed to connect to Kafka: {e}")
+            retry_count -= 1
+            time.sleep(retry_delay)
+    logger.error("Unable to connect to Kafka after retries.")
+    return None
+
+kafka_producer = None
+
+message_count = 0  # Initialize outside the populate_stats function
+
+def check_and_publish_periodic_message():
+    if message_count > app_config['kafka']['max_message_threshold']:
+        periodic_message = {"code": "0004", "message": f"Processing service processed more than {app_config['kafka']['max_message_threshold']} messages."}
+        safe_publish_message(periodic_message)
+        global message_count
+        message_count = 0
+
+def safe_publish_message(message, retry_count=3, retry_delay=3):
+    """
+    Safely publish a message with retries.
+    """
+    global kafka_producer  # Ensure you're using the global producer
+    while retry_count > 0:
+        try:
+            kafka_producer.produce(json.dumps(message).encode('utf-8'))
+            logger.info("Message published successfully.")
+            return
+        except Exception as e:
+            logger.error(f"Failed to publish message: {e}, retrying...")
+            retry_count -= 1
+            time.sleep(retry_delay)
+            kafka_producer = init_kafka_producer()  # Attempt to reconnect/reinitialize producer
+    logger.error("Failed to publish message after retries.")
+
 if __name__ == "__main__":
+    kafka_producer = init_kafka_producer()
+    publish_startup_message()
     init_scheduler()
     app.run(port=8100, host="0.0.0.0")
+

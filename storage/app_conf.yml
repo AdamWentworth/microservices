@@ -1,14 +1,19 @@
 version: 1
 datastore:
-  user: 'adam' # Your MySQL username
-  password: 'password' # Your MySQL password
-  hostname: 'kafka-3855.westus3.cloudapp.azure.com' # Your MySQL server address, use 'localhost' if running locally
-  port: 3306 # Default MySQL port, adjust if your server uses a different port
-  db: 'artist_tracker' # The name of your MySQL database
+  user: 'adam'
+  password: 'password'
+  hostname: 'kafka-3855.westus3.cloudapp.azure.com'
+  port: 3306
+  db: 'artist_tracker'
 events:
-  hostname: kafka-3855.westus3.cloudapp.azure.com # Your VM’s Hostname
+  hostname: kafka-3855.westus3.cloudapp.azure.com
   port: 9092
   topic: events
-  max_retries: 50 
+  max_retries: 50
   retry_interval: 10
-
+event_log:
+  hostname: kafka-3855.westus3.cloudapp.azure.com
+  port: 9092
+  topic: event_log
+  max_retries: 50
+  retry_interval: 10
