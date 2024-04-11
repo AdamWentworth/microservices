@@ -15,7 +15,7 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
-          <stringProp name="LoopController.loops">5</stringProp>
+          <stringProp name="LoopController.loops">10</stringProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
       </ThreadGroup>
@@ -64,7 +64,6 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Social Media Update">
           <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
           <stringProp name="HTTPSampler.path">/receiver/artist/social-media-update</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -100,7 +99,6 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Radio Play Update">
           <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
           <stringProp name="HTTPSampler.path">/receiver/artist/radio-play-update</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -136,7 +134,6 @@
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Track Artist">
           <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
           <stringProp name="HTTPSampler.path">/receiver/user/track-artist</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
