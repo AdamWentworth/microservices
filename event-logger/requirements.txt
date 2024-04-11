@@ -6,3 +6,4 @@ requests==2.31.0
 PyYAML==6.0.1
 uvicorn==0.27.0
 flask-cors==4.0.0
+pykafka==2.8.0
