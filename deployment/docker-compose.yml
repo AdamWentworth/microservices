@@ -45,7 +45,7 @@ services:
   receiver:
     image: receiver:latest
     ports:
-      - "8080:8080"
+      - "8080"
     environment:
       - TARGET_ENV=test
     volumes:
@@ -54,11 +54,13 @@ services:
     depends_on:
       - kafka
       - db
+    networks:
+      - api.network
 
   storage:
     image: storage:latest
     ports:
-      - "8090:8090"
+      - "8090"
     environment:
       - TARGET_ENV=test
       - MYSQL_USER=adam
@@ -71,10 +73,13 @@ services:
     depends_on:
       - db
       - kafka
+    networks:
+      - api.network
 
   processing:
     image: processing:latest
-    network_mode: "host"
+    ports:
+      - "8100"
     environment:
       - TARGET_ENV=test
     volumes:
@@ -83,11 +88,13 @@ services:
       - processing-db:/data
     depends_on:
       - storage
+    networks:
+      - api.network
 
   audit:
     image: audit:latest
     ports:
-      - "8110:8110"
+      - "8110"
     environment:
       - TARGET_ENV=test
     volumes:
@@ -95,15 +102,37 @@ services:
       - /home/adam/logs:/logs
     depends_on:
       - kafka
+    networks:
+      - api.network
 
   dashboard:
     image: dashboard:latest
     ports:
-      - "3000:3000"
+      - "3000"
     depends_on:
       - processing
       - audit
+    networks:
+      - api.network
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - /home/adam/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Adjust this path as needed
+    depends_on:
+      - "receiver"
+      - "storage"
+      - "processing"
+      - "audit" 
+      - "dashboard"
+    ports:
+      - "80:80"
+    networks:
+      - api.network
 
 volumes:
   my-db:
   processing-db:
+
+networks:
+  api.network:
