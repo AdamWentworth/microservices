@@ -15,6 +15,8 @@ from pykafka import KafkaClient
 import json
 import time
 
+message_count = 0  # Initialize outside the populate_stats function
+
 # New conditional configuration loading based on TARGET_ENV
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     print("In Test Environment")
@@ -216,8 +218,6 @@ def init_kafka_producer(retry_count=10, retry_delay=5):
     return None
 
 kafka_producer = None
-
-message_count = 0  # Initialize outside the populate_stats function
 
 def check_and_publish_periodic_message():
     if message_count > app_config['kafka']['max_message_threshold']:
