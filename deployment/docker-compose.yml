@@ -105,6 +105,20 @@ services:
     networks:
       - api.network
 
+  event-logger:
+    image: event-logger:latest
+    ports:
+      - "8120"
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - /home/adam/config/event-logger:/config
+      - /home/adam/logs:/logs
+    depends_on:
+      - kafka
+    networks:
+      - api.network
+
   dashboard:
     image: dashboard:latest
     ports:

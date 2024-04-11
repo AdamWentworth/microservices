@@ -1,0 +1,7 @@
+version: 1
+kafka:
+  hostname: kafka-3855.westus3.cloudapp.azure.com
+  port: 9092
+  topic: event_log
+  max_retries: 25
+  retry_interval: 10

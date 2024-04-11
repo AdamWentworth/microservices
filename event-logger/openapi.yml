@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Event Logger API
+  version: "1.0"
+paths:
+  /events_stats:
+    get:
+      operationId: app.get_events_stats
+      summary: Fetches events statistics.
+      responses:
+        '200':
+          description: A list of events statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  0001:
+                    type: integer
+                    description: Count of Event 0001
+                  0002:
+                    type: integer
+                    description: Count of Event 0002
+                  0003:
+                    type: integer
+                    description: Count of Event 0003
+                  0004:
+                    type: integer
+                    description: Count of Event 0004

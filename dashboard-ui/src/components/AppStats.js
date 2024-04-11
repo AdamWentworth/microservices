@@ -1,35 +1,61 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import '../App.css';
 
 export default function AppStats() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [stats, setStats] = useState({});
+    const [eventLogsStats, setEventLogsStats] = useState({});
     const [error, setError] = useState(null);
 
-    const getStats = () => {
-        // Update this URL to match your Processing Service's actual endpoint
+    const getProcessingStats = () => {
         fetch(`http://kafka-3855.westus3.cloudapp.azure.com/processing/stats`)
             .then(res => res.json())
-            .then((result) => {
-                console.log("Received Stats");
-                setStats(result);
-                setIsLoaded(true);
-            }, (error) => {
-                setError(error);
-                setIsLoaded(true);
-            });
+            .then(
+                (result) => {
+                    console.log("Received Processing Stats");
+                    setStats(result);
+                },
+                (error) => {
+                    setError(error);
+                }
+            );
+    }
+
+    const getEventLogsStats = () => {
+        fetch(`http://kafka-3855.westus3.cloudapp.azure.com/event-logger/events_stats`)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    console.log("Received Event Logs Stats");
+                    setEventLogsStats(result);
+                    setIsLoaded(true); // Set loaded true here to ensure both fetches completed
+                },
+                (error) => {
+                    setError(error);
+                    setIsLoaded(true);
+                }
+            );
     }
 
     useEffect(() => {
-        const interval = setInterval(() => getStats(), 2000); // Update every 2 seconds
+        getProcessingStats();
+        const interval = setInterval(() => {
+            getProcessingStats();
+            getEventLogsStats();
+        }, 2000); // Update every 2 seconds
         return () => clearInterval(interval);
     }, []);
 
     if (error) {
-        return (<div className={"error"}>Error found when fetching from API</div>);
+        return <div className={"error"}>Error found when fetching from API</div>;
     } else if (!isLoaded) {
-        return (<div>Loading...</div>);
+        return <div>Loading...</div>;
     } else {
+        // Generate event log stats display
+        const eventLogsStatsDisplay = Object.entries(eventLogsStats).map(([code, count]) => (
+            <div key={code}>{`Event ${code} Logged: ${count}`}</div>
+        ));
+
         return (
             <div>
                 <h1>Latest Stats</h1>
@@ -50,6 +76,8 @@ export default function AppStats() {
                     </tbody>
                 </table>
                 <h3>Last Updated: {stats.last_updated}</h3>
+                <h2>Event Logs Stats</h2>
+                {eventLogsStatsDisplay}
             </div>
         );
     }
