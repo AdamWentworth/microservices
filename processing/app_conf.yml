@@ -9,4 +9,3 @@ kafka:
   hostname: kafka-3855.westus3.cloudapp.azure.com
   port: 9092
   event_log_topic: event_log
-  max_message_threshold: 25
