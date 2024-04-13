@@ -221,10 +221,15 @@ kafka_producer = None
 
 def check_and_publish_periodic_message():
     global message_count
-    periodic_message = {"code": "0004", "message": f"Processing service has processed messages."}
-    safe_publish_message(periodic_message)
+    # Load the message threshold from configuration
+    message_threshold = app_config['scheduler'].get('message_threshold', 25)  # Default is 25 if not specified
+    
+    if message_count > message_threshold:
+        periodic_message = {"code": "0004", "message": f"Processing service has processed {message_count} messages."}
+        safe_publish_message(periodic_message)
+        logger.info(f"Published periodic processing message for {message_count} messages.")
+    
     message_count = 0  # Reset message count after logging the event
-
 
 def safe_publish_message(message, retry_count=3, retry_delay=3):
     """

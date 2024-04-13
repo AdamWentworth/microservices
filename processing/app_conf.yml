@@ -3,6 +3,7 @@ datastore:
   filename: /data/stats.sqlite
 scheduler:
   period_sec: 5
+  message_threshold: 25  # New threshold for logging event 0004
 eventstore:
   url: http://kafka-3855.westus3.cloudapp.azure.com/storage
 kafka:
