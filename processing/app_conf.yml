@@ -1,10 +1,10 @@
 version: 1
 datastore:
-  filename: ./stats.sqlite
+  filename: /data/stats.sqlite
 scheduler:
   period_sec: 5
 eventstore:
-  url: http://localhost:8090
+  url: http://kafka-3855.westus3.cloudapp.azure.com/storage
 kafka:
   hostname: kafka-3855.westus3.cloudapp.azure.com
   port: 9092
