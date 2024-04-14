@@ -5,3 +5,5 @@ kafka:
   topic: event_log
   max_retries: 25
   retry_interval: 10
+database:
+  path: /data/event_logs.db
