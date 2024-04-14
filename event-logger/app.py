@@ -24,7 +24,7 @@ with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('basicLogger')
 logger.info(f"Logging configured using {log_conf_file}, running in {'Test' if 'TARGET_ENV' in os.environ and os.environ['TARGET_ENV'] == 'test' else 'Dev'} environment")
 
 with open(app_conf_file, 'r') as f:
