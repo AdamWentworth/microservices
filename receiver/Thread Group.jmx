@@ -20,7 +20,7 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Artist">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Artist" enabled="true">
           <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
           <stringProp name="HTTPSampler.path">/receiver/artist</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -62,7 +62,7 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Social Media Update">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Social Media Update" enabled="true">
           <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
           <stringProp name="HTTPSampler.path">/receiver/artist/social-media-update</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -97,7 +97,7 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Radio Play Update">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Radio Play Update" enabled="true">
           <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
           <stringProp name="HTTPSampler.path">/receiver/artist/radio-play-update</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -132,7 +132,7 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Track Artist">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Track Artist" enabled="true">
           <stringProp name="HTTPSampler.domain">kafka-3855.westus3.cloudapp.azure.com</stringProp>
           <stringProp name="HTTPSampler.path">/receiver/user/track-artist</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
