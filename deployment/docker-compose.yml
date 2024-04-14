@@ -114,6 +114,7 @@ services:
     volumes:
       - /home/adam/config/event-logger:/config
       - /home/adam/logs:/logs
+      - /home/adam/data/event-logger:/data
     depends_on:
       - kafka
     networks:
@@ -147,6 +148,7 @@ services:
 volumes:
   my-db:
   processing-db:
+  event-logger-db:
 
 networks:
   api.network:

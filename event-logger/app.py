@@ -33,7 +33,7 @@ logger.info(f"Application configuration loaded from {app_conf_file}")
 
 def initialize_db():
     logger.debug("Initializing database and tables if not exists")
-    connection = sqlite3.connect('event_logs.db')
+    connection = sqlite3.connect('/data/event_logs.db')
     cursor = connection.cursor()
 
     # Create a table
@@ -74,7 +74,7 @@ def consume_events():
 def store_event_log(message):
     logger.debug(f"Storing event log: {message}")
     parsed_message = json.loads(message)
-    connection = sqlite3.connect('event_logs.db')
+    connection = sqlite3.connect('/data/event_logs.db')
     cursor = connection.cursor()
     utc_now = datetime.now(timezone.utc)
     try:
@@ -92,7 +92,7 @@ def store_event_log(message):
 def get_events_stats():
     logger.debug("Fetching events statistics from the database.")
     try:
-        connection = sqlite3.connect('event_logs.db')
+        connection = sqlite3.connect('/data/event_logs.db')
         cursor = connection.cursor()
 
         cursor.execute('''
