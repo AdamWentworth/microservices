@@ -3,6 +3,7 @@ import connexion
 import yaml
 import json
 import time
+import uuid
 from connexion import NoContent
 from flask import request
 from sqlalchemy.orm import sessionmaker
@@ -87,6 +88,7 @@ def process_messages():
             event_log_producer = event_log_topic.get_sync_producer()
 
             startup_message = {
+                "uid": str(uuid.uuid4()),
                 "code": "0002",
                 "message": "Storage service ready to consume messages from the events topic on Kafka."
             }

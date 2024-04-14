@@ -20,7 +20,7 @@ else:
     log_conf_file = "log_conf.yml"
 
 # Setup logging
-with open('log_conf.yml', 'r') as f:
+with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
@@ -40,6 +40,7 @@ def initialize_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS event_logs (
             id INTEGER PRIMARY KEY,
+            uid TEXT NOT NULL UNIQUE,
             message TEXT NOT NULL,
             code TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -78,11 +79,11 @@ def store_event_log(message):
     utc_now = datetime.now(timezone.utc)
     try:
         cursor.execute('''
-            INSERT INTO event_logs (message, code, timestamp)
-            VALUES (?, ?, ?)
-        ''', (message, parsed_message.get('code'), utc_now.strftime('%Y-%m-%d %H:%M:%S')))
+            INSERT INTO event_logs (uid, message, code, timestamp)
+            VALUES (?, ?, ?, ?)
+        ''', (parsed_message.get('uid'), message, parsed_message.get('code'), utc_now.strftime('%Y-%m-%d %H:%M:%S')))
         connection.commit()
-        logger.info(f"Successfully stored event log with code {parsed_message.get('code')}")
+        logger.info(f"Successfully stored event log with uid {parsed_message.get('uid')} and code {parsed_message.get('code')}")
     except Exception as e:
         logger.error(f"Failed to insert event log into database: {e}")
     finally:

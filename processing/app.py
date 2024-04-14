@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from base import Base
 from stats import Stats
 import requests
+import uuid
 from datetime import datetime, timedelta, timezone
 import logging.config
 import yaml
@@ -192,7 +193,10 @@ def get_stats():
         session.close()
 
 def publish_startup_message():
-    startup_message = {"code": "0003", "message": "Processing service started."}
+    startup_message = {
+        "uid": str(uuid.uuid4()),
+        "code": "0003", 
+        "message": "Processing service started."}
     safe_publish_message(startup_message)
 
 def init_kafka_producer(retry_count=10, retry_delay=5):
@@ -225,7 +229,10 @@ def check_and_publish_periodic_message():
     message_threshold = app_config['scheduler'].get('message_threshold', 25)  # Default is 25 if not specified
     
     if message_count > message_threshold:
-        periodic_message = {"code": "0004", "message": f"Processing service has processed {message_count} messages."}
+        periodic_message = {
+            "uid": str(uuid.uuid4()),
+            "code": "0004", 
+            "message": f"Processing service has processed {message_count} messages."}
         safe_publish_message(periodic_message)
         logger.info(f"Published periodic processing message for {message_count} messages.")
     

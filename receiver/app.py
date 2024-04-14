@@ -141,8 +141,9 @@ if __name__ == "__main__":
     event_log_producer = initialize_kafka_producer_with_retry(event_log_config)
     if event_log_producer:
         startup_message = {
+            "uid": str(uuid.uuid4()),
             "code": "0001",
-            "message": "Receiver service ready and connected to Kafka."
+            "message": "Receiver service ready and connected to Kafka."            
         }
         event_log_producer.produce(json.dumps(startup_message).encode('utf-8'))
         logger.info("Published startup message to event_log topic.")
