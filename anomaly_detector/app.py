@@ -92,7 +92,7 @@ def get_kafka_client(retries=5, wait_time=5):
     logger.error("Unable to connect to Kafka after retries.")
     return None
 
-def get_events_stats():
+def get_anomalies():
     logger.debug("Fetching events statistics from the database.")
     try:
         connection = sqlite3.connect('/data/anomaly_logs.db')

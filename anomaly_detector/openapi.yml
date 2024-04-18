@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Anomaly Detector API
+  version: "1.0"
+paths:
+  /events_stats:
+    get:
+      operationId: app.get_anomalies
+      summary: Fetches anomalies detected.
+      responses:
+        '200':
+          description: A list of anomalies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Artists:
+                    type: integer
+                    description: Count of Artist anomalies
+                  Social Media:
+                    type: integer
+                    description: Count of Social Media anomalies
+                  Radio Plays:
+                    type: integer
+                    description: Count of Radio play anomalies
+                  Tracked Artirts:
+                    type: integer
+                    description: Count of Track Artist anomalies
