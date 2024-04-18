@@ -124,7 +124,7 @@ def init_scheduler():
 
 # Initialize Connexion application
 app = connexion.App(__name__, specification_dir='./')
-app.add_api("openapi.yml", base_path="/<new service>", strict_validation=True,
+app.add_api("openapi.yml", base_path="/anomaly_detector", strict_validation=True,
             validate_responses=True)
 
 if __name__ == '__main__':
