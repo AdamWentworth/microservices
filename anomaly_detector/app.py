@@ -40,7 +40,7 @@ def initialize_db():
 
     # Create a table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS anomaly (
+        CREATE TABLE IF NOT EXISTS anomalies (
             id INTEGER PRIMARY KEY ASC, 
             event_id VARCHAR(250) NOT NULL,
             trace_id VARCHAR(250) NOT NULL,
@@ -67,14 +67,33 @@ def consume_events():
                 for message in consumer:
                     if message is not None:
                         logger.debug(f"Received message: {message.value.decode('utf-8')}")
-                        # store_event_log(message.value.decode('utf-8'))
-                        print(f"Received message: {message.value.decode('utf-8')}")
+                        store_anomaly_log(message.value.decode('utf-8'))
+                        # print(f"Received message: {message.value.decode('utf-8')}")
             else:
                 logger.error("Kafka client could not be initialized. Retrying...")
                 time.sleep(5)
         except Exception as e:
             logger.error(f"Error consuming Kafka messages: {e}. Attempting to restart consumer.")
             time.sleep(5)
+
+def store_anomaly_log(message):
+    logger.debug(f"Storing event log: {message}")
+    parsed_message = json.loads(message)
+    connection = sqlite3.connect('/data/anomaly_logs.db')
+    cursor = connection.cursor()
+    utc_now = datetime.now(timezone.utc)
+    try:
+        cursor.execute('''
+            INSERT INTO anomalies (event_id, trace_id, event_type, anomaly_type, description, date_created)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (parsed_message.get('uid'), message, parsed_message.get('code'), utc_now.strftime('%Y-%m-%d %H:%M:%S')))
+        connection.commit()
+        logger.info(f"Successfully stored event log with uid {parsed_message.get('uid')} and code {parsed_message.get('code')}")
+    except Exception as e:
+        logger.error(f"Failed to insert event log into database: {e}")
+    finally:
+        connection.close()
+
 
 def get_kafka_client(retries=5, wait_time=5):
     logger.debug(f"Attempting to connect to Kafka with {retries} retries remaining")

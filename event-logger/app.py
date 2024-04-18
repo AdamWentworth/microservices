@@ -77,6 +77,7 @@ def store_event_log(message):
     connection = sqlite3.connect('/data/event_logs.db')
     cursor = connection.cursor()
     utc_now = datetime.now(timezone.utc)
+    print(message)
     try:
         cursor.execute('''
             INSERT INTO event_logs (uid, message, code, timestamp)
