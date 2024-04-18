@@ -1,6 +1,6 @@
 datastore:
   filename: /data/anomaly_logs.db
-events:
+kafka:
   hostname: kafka-3855.westus3.cloudapp.azure.com
   port: 9092
   topic: events

@@ -139,7 +139,7 @@ services:
     volumes:
       - /home/adam/config/anomaly_detector:/config
       - /home/adam/logs:/logs
-      - anomaly_detector-db:/data #if needing persistent volume
+      - anomaly_detector-db:/data
     depends_on:
       - receiver
     networks:

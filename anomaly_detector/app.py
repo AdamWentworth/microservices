@@ -79,7 +79,7 @@ def get_kafka_client(retries=5, wait_time=5):
     logger.debug(f"Attempting to connect to Kafka with {retries} retries remaining")
     with open('app_conf.yml', 'r') as f:
         config = yaml.safe_load(f.read())
-        kafka_config = config['events']
+        kafka_config = config['kafka']
     while retries > 0:
         try:
             client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
