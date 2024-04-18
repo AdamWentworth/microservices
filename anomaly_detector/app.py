@@ -68,6 +68,7 @@ def consume_events():
                     if message is not None:
                         logger.debug(f"Received message: {message.value.decode('utf-8')}")
                         # store_event_log(message.value.decode('utf-8'))
+                        print(f"Received message: {message.value.decode('utf-8')}")
             else:
                 logger.error("Kafka client could not be initialized. Retrying...")
                 time.sleep(5)
@@ -79,7 +80,7 @@ def get_kafka_client(retries=5, wait_time=5):
     logger.debug(f"Attempting to connect to Kafka with {retries} retries remaining")
     with open('app_conf.yml', 'r') as f:
         config = yaml.safe_load(f.read())
-        kafka_config = config['kafka']
+        kafka_config = config['events']
     while retries > 0:
         try:
             client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
