@@ -130,6 +130,21 @@ services:
     networks:
       - api.network
 
+  anomaly_detector:
+    image: anomaly_detector:latest
+    ports:
+      - "8130"
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - /home/adam/config/anomaly_detector:/config
+      - /home/adam/logs:/logs
+      - anomaly_detector-db:/data #if needing persistent volume
+    depends_on:
+      - receiver
+    networks:
+      - api.network
+
   nginx:
     image: nginx:latest
     volumes:
@@ -140,6 +155,7 @@ services:
       - "processing"
       - "audit" 
       - "dashboard"
+      - "anomaly_detector"
     ports:
       - "80:80"
     networks:
@@ -149,6 +165,7 @@ volumes:
   my-db:
   processing-db:
   event-logger-db:
+  anomaly_detector-db:
 
 networks:
   api.network:

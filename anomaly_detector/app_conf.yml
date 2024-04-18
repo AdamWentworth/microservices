@@ -1,0 +1,10 @@
+datastore:
+  filename: /data/anomaly_logs.db
+events:
+  hostname: kafka-3855.westus3.cloudapp.azure.com
+  port: 9092
+  topic: events
+  max_retries: 50
+  retry_interval: 10
+scheduler:
+  period_sec: 5 
