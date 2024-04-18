@@ -64,6 +64,7 @@ def consume_events():
                     if message is not None:
                         logger.debug(f"Received message: {message.value.decode('utf-8')}")
                         store_event_log(message.value.decode('utf-8'))
+                        print(message.value.decode('utf-8'))
             else:
                 logger.error("Kafka client could not be initialized. Retrying...")
                 time.sleep(5)
@@ -77,7 +78,6 @@ def store_event_log(message):
     connection = sqlite3.connect('/data/event_logs.db')
     cursor = connection.cursor()
     utc_now = datetime.now(timezone.utc)
-    print(message)
     try:
         cursor.execute('''
             INSERT INTO event_logs (uid, message, code, timestamp)
