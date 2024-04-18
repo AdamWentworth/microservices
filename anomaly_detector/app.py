@@ -81,16 +81,15 @@ def store_anomaly_log(message):
     parsed_message = json.loads(message)
     connection = sqlite3.connect('/data/anomaly_logs.db')
     cursor = connection.cursor()
-    utc_now = datetime.now(timezone.utc)
     try:
         cursor.execute('''
             INSERT INTO anomalies (event_id, trace_id, event_type, anomaly_type, description, date_created)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (parsed_message.get('uid'), message, parsed_message.get('code'), utc_now.strftime('%Y-%m-%d %H:%M:%S')))
+        ''', (str(uuid.uuid4()), parsed_message.get('trace_id'), parsed_message.get('type'), parsed_message.get('type'), 'anomaly', parsed_message.get('datetime')))
         connection.commit()
-        logger.info(f"Successfully stored event log with uid {parsed_message.get('uid')} and code {parsed_message.get('code')}")
+        logger.info(f"Successfully stored anomaly event with uid {parsed_message.get('event_id')} and type {parsed_message.get('type')}")
     except Exception as e:
-        logger.error(f"Failed to insert event log into database: {e}")
+        logger.error(f"Failed to insert anomaly into database: {e}")
     finally:
         connection.close()
 
