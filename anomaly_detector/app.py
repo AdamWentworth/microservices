@@ -10,9 +10,6 @@ import time
 import os
 from pykafka.common import OffsetType
 import uuid
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from apscheduler.schedulers.background import BackgroundScheduler
 
 # Determine the environment and load configuration files accordingly
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
@@ -36,10 +33,6 @@ with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f.read())
 logger.info(f"Application configuration loaded from {app_conf_file}")
 
-# Inside your app initialization or function, after loading app_config
-kafka_config = app_config['events']
-kafka_server = f"{kafka_config['hostname']}:{kafka_config['port']}"
-
 def initialize_db():
     logger.debug("Initializing database and tables if not exists")
     connection = sqlite3.connect('/data/anomaly_logs.db')
@@ -61,66 +54,65 @@ def initialize_db():
     connection.close()
     logger.info("Database initialization complete")
 
-def consume_messages():
-    retry_count = 0
-    while retry_count < kafka_config['max_retries']:
+def consume_events():
+    logger.info("Starting to consume events from Kafka")
+    retry = True
+    while retry:
         try:
-            logger.info(f"Attempting to connect to Kafka, try {retry_count + 1}")
-            client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
-            topic = client.topics[str.encode(kafka_config['topic'])]
-            consumer = topic.get_simple_consumer(
-                consumer_group=b'event_group',
-                reset_offset_on_start=False,
-                auto_offset_reset=OffsetType.LATEST
-            )
-            logger.info("Successfully connected to Kafka")
-
-            break
+            client = get_kafka_client()
+            if client is not None:
+                topic = client.topics[b'events']
+                consumer = topic.get_simple_consumer()
+                logger.info(f"Subscribed to topic 'events'")
+                for message in consumer:
+                    if message is not None:
+                        logger.debug(f"Received message: {message.value.decode('utf-8')}")
+                        # store_event_log(message.value.decode('utf-8'))
+            else:
+                logger.error("Kafka client could not be initialized. Retrying...")
+                time.sleep(5)
         except Exception as e:
-            logger.error(f"Failed to connect to Kafka on try {retry_count + 1}: {e}")
-            time.sleep(kafka_config['retry_interval'])
-            retry_count += 1
+            logger.error(f"Error consuming Kafka messages: {e}. Attempting to restart consumer.")
+            time.sleep(5)
 
-    for msg in consumer:
-        if msg is not None:
-            msg_str = msg.value.decode('utf-8')
-            message = json.loads(msg_str)
-            logger.info(f"Message: {message}")
-            payload = message["payload"]
-            print(payload)
+def get_kafka_client(retries=5, wait_time=5):
+    logger.debug(f"Attempting to connect to Kafka with {retries} retries remaining")
+    with open('app_conf.yml', 'r') as f:
+        config = yaml.safe_load(f.read())
+        kafka_config = config['events']
+    while retries > 0:
+        try:
+            client = KafkaClient(hosts=f"{kafka_config['hostname']}:{kafka_config['port']}")
+            logger.info("Successfully connected to Kafka.")
+            return client
+        except Exception as e:
+            logger.error(f"Failed to connect to Kafka: {e}. Retrying in {wait_time} seconds...")
+            retries -= 1
+            time.sleep(wait_time)
+    logger.error("Unable to connect to Kafka after retries.")
+    return None
 
-            # try:
-            #     if message["type"] == "addArtist":
-            #         # Ensure list fields are serialized to JSON string
-            #         payload['top_tracks'] = json.dumps(payload.get('top_tracks', []))
-            #         payload['certifications'] = json.dumps(payload.get('certifications', []))
-            #         artist = Artist(**payload)
-            #         session.add(artist)
+def get_events_stats():
+    logger.debug("Fetching events statistics from the database.")
+    try:
+        connection = sqlite3.connect('/data/anomaly_logs.db')
+        cursor = connection.cursor()
 
-            #     elif message["type"] == "updateSocialMedia":
-            #         social_media_record = session.query(SocialMedia).filter_by(
-            #             artist_id=payload['artist_id'], platform=payload['platform']).first()
-            #         if social_media_record:
-            #             social_media_record.followers = payload['followers']
-            #             social_media_record.plays = payload['plays']
-            #         else:
-            #             new_social_media = SocialMedia(**payload)
-            #             session.add(new_social_media)
+        cursor.execute('''
+            SELECT anomaly_type, COUNT(*) FROM anomaly_logs GROUP BY anomaly_type
+        ''')
+        anomalies = {anomaly: count for anomaly, count in cursor.fetchall()}
+        logger.info(f"Successfully fetched anomaly statistics: {anomalies}")
 
-            #     session.commit()
-            # except Exception as e:
-            #     logger.error(f"Failed to process message: {e}")
-            #     session.rollback()
-            # finally:
-            #     session.close()
+    except Exception as e:
+        logger.error(f"Failed to fetch anomaly statistics due to an error: {e}")
+        anomalies = {}
 
-            # consumer.commit_offsets()
+    finally:
+        connection.close()
+        logger.debug("Database connection closed.")
 
-def init_scheduler():
-    """Initialize the scheduler to run consume_messages periodically."""
-    sched = BackgroundScheduler(daemon=True)
-    sched.add_job(consume_messages, 'interval', seconds=app_config['scheduler']['period_sec'])
-    sched.start()
+    return anomalies
 
 # Initialize Connexion application
 app = connexion.App(__name__, specification_dir='./')
@@ -129,7 +121,8 @@ app.add_api("openapi.yml", base_path="/anomaly_detector", strict_validation=True
 
 if __name__ == '__main__':
     initialize_db()
-    init_scheduler()
+    logger.info("Database initialized, starting Kafka consumer thread")
+    Thread(target=consume_events, daemon=True).start()
     app.run(port=8130, host="0.0.0.0")
     logger.info("Application started")
 

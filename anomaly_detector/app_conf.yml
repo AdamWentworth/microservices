@@ -6,5 +6,3 @@ events:
   topic: events
   max_retries: 50
   retry_interval: 10
-scheduler:
-  period_sec: 5 
