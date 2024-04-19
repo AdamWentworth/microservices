@@ -89,8 +89,8 @@ def detect_and_store_anomaly(message):
             is_anomaly = True
 
     elif event_type == "updateSocialMedia":
-        # Anomaly condition: more than 1 million followers or more than 50,000 plays
-        if parsed_message['payload'].get('followers', 0) > 1000000 or parsed_message['payload'].get('plays', 0) > 50000:
+        # Anomaly condition: more than 1 million followers or more than 1,000,000 plays
+        if parsed_message['payload'].get('followers', 0) > 1000000 or parsed_message['payload'].get('plays', 0) > 1000000:
             is_anomaly = True
 
     elif event_type == "trackArtist":
@@ -98,8 +98,8 @@ def detect_and_store_anomaly(message):
         is_anomaly = False
 
     elif event_type == "updateRadioPlay":
-        # Anomaly condition: more than 1000 spins or fewer than 10 spins
-        if parsed_message['payload'].get('spins', 0) > 1000 or parsed_message['payload'].get('spins', 0) < 10:
+        # Anomaly condition: more than 1000000 spins or fewer than 10 spins
+        if parsed_message['payload'].get('spins', 0) > 1000000 or parsed_message['payload'].get('spins', 0) < 10:
             is_anomaly = True
 
     # Log and store the anomaly if detected
