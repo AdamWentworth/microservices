@@ -81,6 +81,7 @@ def store_anomaly_log(message):
     parsed_message = json.loads(message)
     connection = sqlite3.connect('/data/anomaly_logs.db')
     cursor = connection.cursor()
+    print((uuid.uuid4().int, parsed_message.get('payload'['trace_id']), parsed_message.get('type'), parsed_message.get('type'), 'anomaly', parsed_message.get('datetime')))
     try:
         cursor.execute('''
             INSERT INTO anomalies (event_id, trace_id, event_type, anomaly_type, description, date_created)
