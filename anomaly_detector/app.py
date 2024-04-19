@@ -85,7 +85,7 @@ def store_anomaly_log(message):
         cursor.execute('''
             INSERT INTO anomalies (event_id, trace_id, event_type, anomaly_type, description, date_created)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', ((uuid.uuid4().int), parsed_message.get('payload'['trace_id']), parsed_message.get('type'), parsed_message.get('type'), 'anomaly', parsed_message.get('datetime')))
+        ''', (uuid.uuid4().int, parsed_message.get('payload'['trace_id']), parsed_message.get('type'), parsed_message.get('type'), 'anomaly', parsed_message.get('datetime')))
         connection.commit()
         logger.info(f"Successfully stored anomaly event with uid {parsed_message.get('event_id')} and type {parsed_message.get('type')}")
     except Exception as e:
