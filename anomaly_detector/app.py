@@ -68,7 +68,7 @@ def consume_events():
                     if message is not None:
                         logger.debug(f"Received message: {message.value.decode('utf-8')}")
                         store_anomaly_log(message.value.decode('utf-8'))
-                        # print(f"Received message: {message.value.decode('utf-8')}")
+                        print(f"Received message: {message.value.decode('utf-8')}")
             else:
                 logger.error("Kafka client could not be initialized. Retrying...")
                 time.sleep(5)
