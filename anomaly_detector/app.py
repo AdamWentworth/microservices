@@ -156,26 +156,44 @@ def get_kafka_client(retries=5, wait_time=5):
     return None
 
 def get_anomalies():
-    logger.debug("Fetching events statistics from the database.")
+    logger.debug("Fetching detailed anomaly records from the database.")
+    grouped_anomalies = {}  # This will store the categorized anomalies
+
     try:
         connection = sqlite3.connect('/data/anomaly_logs.db')
         cursor = connection.cursor()
 
+        # Fetch all columns for all anomalies
         cursor.execute('''
-            SELECT anomaly_type, COUNT(*) FROM anomaly_logs GROUP BY anomaly_type
+            SELECT anomaly_type, event_id, trace_id, event_type, description, date_created FROM anomalies
         ''')
-        anomalies = {anomaly: count for anomaly, count in cursor.fetchall()}
-        logger.info(f"Successfully fetched anomaly statistics: {anomalies}")
+
+        # Process each row in the fetched data
+        for row in cursor.fetchall():
+            anomaly_type, event_id, trace_id, event_type, description, date_created = row
+            # Initialize a list for the anomaly type if it has not been used yet
+            if anomaly_type not in grouped_anomalies:
+                grouped_anomalies[anomaly_type] = []
+
+            # Append a dictionary of this row's data to the appropriate list
+            grouped_anomalies[anomaly_type].append({
+                'event_id': event_id,
+                'trace_id': trace_id,
+                'event_type': event_type,
+                'description': description,
+                'date_created': date_created
+            })
+
+        logger.info(f"Successfully fetched and grouped anomaly records: {json.dumps(grouped_anomalies, indent=2)}")
 
     except Exception as e:
-        logger.error(f"Failed to fetch anomaly statistics due to an error: {e}")
-        anomalies = {}
+        logger.error(f"Failed to fetch anomaly records due to an error: {e}")
 
     finally:
         connection.close()
         logger.debug("Database connection closed.")
 
-    return anomalies
+    return grouped_anomalies
 
 # Initialize Connexion application
 app = connexion.App(__name__, specification_dir='./')

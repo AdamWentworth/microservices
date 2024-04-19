@@ -3,27 +3,47 @@ info:
   title: Anomaly Detector API
   version: "1.0"
 paths:
-  /events_stats:
+  /anomalies:
     get:
       operationId: app.get_anomalies
-      summary: Fetches anomalies detected.
+      summary: Fetches detailed records of anomalies detected, grouped by type.
       responses:
         '200':
-          description: A list of anomalies
+          description: Detailed information of all anomalies grouped by category.
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  Artists:
-                    type: integer
-                    description: Count of Artist anomalies
-                  Social Media:
-                    type: integer
-                    description: Count of Social Media anomalies
-                  Radio Plays:
-                    type: integer
-                    description: Count of Radio play anomalies
-                  Tracked Artirts:
-                    type: integer
-                    description: Count of Track Artist anomalies
+                additionalProperties:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      event_id:
+                        type: string
+                        description: The unique identifier for the event.
+                      trace_id:
+                        type: string
+                        description: Trace ID associated with the event.
+                      event_type:
+                        type: string
+                        description: Type of the event that was recorded as an anomaly.
+                      description:
+                        type: string
+                        description: Description of the anomaly.
+                      date_created:
+                        type: string
+                        description: The date and time when the anomaly was recorded.
+                example:
+                  addArtist:
+                    - event_id: "123e4567-e89b-12d3-a456-426614174000"
+                      trace_id: "1cd65b93-1d38-4295-bb64-a2127425c3f7"
+                      event_type: "addArtist"
+                      description: "Anomaly in event type addArtist"
+                      date_created: "2024-04-11T21:04:41"
+                  updateSocialMedia:
+                    - event_id: "123e4567-e89b-12d3-a456-426614174001"
+                      trace_id: "0ef84c76-64f6-49eb-8dde-647fb20a196a"
+                      event_type: "updateSocialMedia"
+                      description: "Unexpected high follower count"
+                      date_created: "2024-04-11T21:04:42"
