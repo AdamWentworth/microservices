@@ -92,7 +92,7 @@ def store_anomaly_log(message):
                        # My plan once I could successfully store anything was to then add conditional logic for what an anomaly would be and only store conditionally based on that but I kept running into the same error for 90 minutes straight.
                        # 2024-04-19 00:15:57,704 - basicLogger - ERROR - Failed to insert anomaly into database: string indices must be integers
                        # I couldn't figure out how to fix it but I know if I could've gotten over this one hurdle I could've accomplished a lot more...
-        ''', (uuid.uuid4().int, parsed_message.get(['payload']['trace_id']), parsed_message.get('type'), parsed_message.get('type'), 'anomaly', parsed_message.get('datetime')))
+        ''', (uuid.uuid4().int, parsed_message.get('payload','trace_id'), parsed_message.get('type'), parsed_message.get('type'), 'anomaly', parsed_message.get('datetime')))
         connection.commit()
         logger.info(f"Successfully stored anomaly event with uid {parsed_message.get('event_id')} and type {parsed_message.get('type')}")
     except Exception as e:
