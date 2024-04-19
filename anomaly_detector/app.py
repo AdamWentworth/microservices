@@ -67,14 +67,47 @@ def consume_events():
                 for message in consumer:
                     if message is not None:
                         logger.debug(f"Received message: {message.value.decode('utf-8')}")
-                        store_anomaly_log(message.value.decode('utf-8'))
-                        print(f"Received message: {message.value.decode('utf-8')}")
+                        detect_and_store_anomaly(message.value.decode('utf-8'))
             else:
                 logger.error("Kafka client could not be initialized. Retrying...")
                 time.sleep(5)
         except Exception as e:
             logger.error(f"Error consuming Kafka messages: {e}. Attempting to restart consumer.")
             time.sleep(5)
+
+def detect_and_store_anomaly(message):
+    logger.debug(f"Analyzing message for anomalies: {message}")
+    parsed_message = json.loads(message)
+
+    # Define anomaly conditions for each type
+    is_anomaly = False
+    event_type = parsed_message['type']
+
+    if event_type == "addArtist":
+        # Anomaly condition: more than 5 top tracks or more than 3 certifications
+        if len(parsed_message['payload'].get('top_tracks', [])) > 5 or len(parsed_message['payload'].get('certifications', [])) > 3:
+            is_anomaly = True
+
+    elif event_type == "updateSocialMedia":
+        # Anomaly condition: more than 1 million followers or more than 50,000 plays
+        if parsed_message['payload'].get('followers', 0) > 1000000 or parsed_message['payload'].get('plays', 0) > 50000:
+            is_anomaly = True
+
+    elif event_type == "trackArtist":
+        # track artist doesn't really allow for anomalies
+        is_anomaly = False
+
+    elif event_type == "updateRadioPlay":
+        # Anomaly condition: more than 1000 spins or fewer than 10 spins
+        if parsed_message['payload'].get('spins', 0) > 1000 or parsed_message['payload'].get('spins', 0) < 10:
+            is_anomaly = True
+
+    # Log and store the anomaly if detected
+    if is_anomaly:
+        store_anomaly_log(message)
+        logger.info(f"Anomaly detected and logged for event type: {event_type}")
+    else:
+        logger.info(f"No anomaly detected for event type: {event_type}")
 
 def store_anomaly_log(message):
     logger.debug(f"Storing event log: {message}")
