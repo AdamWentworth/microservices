@@ -82,24 +82,28 @@ def store_anomaly_log(message):
     connection = sqlite3.connect('/data/anomaly_logs.db')
     cursor = connection.cursor()
     try:
+        # Prepare data to insert
+        event_id = uuid.uuid4()  # Generate a new UUID for each event
+        trace_id = parsed_message['payload']['trace_id']
+        event_type = parsed_message['type']
+        anomaly_type = 'anomaly'  # Static value as per original code
+        description = f"Anomaly in event type {event_type}"
+        date_created = parsed_message['datetime']
+
+        # Execute insert statement
         cursor.execute('''
             INSERT INTO anomalies (event_id, trace_id, event_type, anomaly_type, description, date_created)
             VALUES (?, ?, ?, ?, ?, ?)
-                       
-                       # I got stuck here. I was simply trying to get any data from my object to store
-                       # object looks like this:
-                       {"type": "addArtist", "datetime": "2024-04-14T03:30:17", "payload": {"id": "42ee3c4e-b447-49f4-9bfc-f0b32360d469", "name": "Artist PC5CX", "genre": "Genre 2GLK3", "region": "Region REACO", "top_tracks": ["Track 2", "Track 13"], "certifications": ["Certification 95HMX"], "trace_id": "dbbdd93c-2c9e-4832-9c12-9ff9c8f7869e"}}
-                       # My plan once I could successfully store anything was to then add conditional logic for what an anomaly would be and only store conditionally based on that but I kept running into the same error for 90 minutes straight.
-                       # 2024-04-19 00:15:57,704 - basicLogger - ERROR - Failed to insert anomaly into database: string indices must be integers
-                       # I couldn't figure out how to fix it but I know if I could've gotten over this one hurdle I could've accomplished a lot more...
-        ''', (uuid.uuid4().int, parsed_message.get('payload','trace_id'), parsed_message.get('type'), parsed_message.get('type'), 'anomaly', parsed_message.get('datetime')))
+        ''', (str(event_id), trace_id, event_type, anomaly_type, description, date_created))
+
         connection.commit()
-        logger.info(f"Successfully stored anomaly event with uid {parsed_message.get('event_id')} and type {parsed_message.get('type')}")
+        logger.info(f"Successfully stored anomaly event with uid {event_id} and type {event_type}")
+
     except Exception as e:
         logger.error(f"Failed to insert anomaly into database: {e}")
+
     finally:
         connection.close()
-
 
 def get_kafka_client(retries=5, wait_time=5):
     logger.debug(f"Attempting to connect to Kafka with {retries} retries remaining")
